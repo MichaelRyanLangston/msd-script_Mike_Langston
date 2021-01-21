@@ -2,7 +2,7 @@
 *.d
 
 #Xcode
-*xcodeproj/xcurserdata
+*.xcodeproj/xcurserdata
 
 # Compiled Object files
 *.slo
