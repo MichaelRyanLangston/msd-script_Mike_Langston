@@ -1,8 +1,9 @@
-# Prerequisites
+l# Prerequisites
 *.d
 
-#Xcode
-*.xcodeproj/xcurserdata
+#Xcode and other unimportant files
+*.xcodeproj/xcuserdata
+.DS_Store
 
 # Compiled Object files
 *.slo
