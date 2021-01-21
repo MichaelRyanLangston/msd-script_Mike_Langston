@@ -2,8 +2,7 @@ l# Prerequisites
 *.d
 
 #Xcode and other unimportant files
-MSDscriptCommandLine/MSDscriptCommandLine.xcodeproj/xcuserdata/
-MSDscriptCommandLine/MSDscriptCommandLine.xcodeproj/project.xcworkspace/xcuserdata/
+xcuserdata
 .DS_Store
 
 # Compiled Object files
