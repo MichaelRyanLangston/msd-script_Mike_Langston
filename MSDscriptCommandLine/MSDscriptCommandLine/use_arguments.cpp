@@ -5,6 +5,8 @@
 //  Created by Michael Langston on 1/19/21.
 //
 
+#define CATCH_CONFIG_RUNNER
+#include "catch.h"
 #include "use_arguments.hpp"
 
 /*
@@ -29,7 +31,8 @@ void use_arguments(const int arraySize, const char* array[]){
         }
         else if ((std::string)array[i] == "--test" && !testSeen){
             testSeen = true;
-            std::cout << "Tests passed\n";
+            if(Catch::Session().run(1, array) != 0)
+                exit(1);
             continue;
         }
         std::cerr << "Invalid command\n";
