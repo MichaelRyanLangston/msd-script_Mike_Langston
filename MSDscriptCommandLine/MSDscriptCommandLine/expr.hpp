@@ -17,6 +17,9 @@ class Expr {
 public:
     // = 0 syntax means that each subclass must override it.
     virtual bool equals(Expr *e) = 0;
+    virtual int interp() = 0;
+    virtual bool has_variable() = 0;
+    virtual Expr* subst(std::string s, Expr *e) = 0;
 };
 
 class Num : public Expr {
@@ -29,6 +32,9 @@ public:
     
     //Methods
     bool equals(Expr *e);
+    int interp();
+    bool has_variable();
+    Expr* subst(std::string s, Expr *e);
 };
 
 class Add : public Expr {
@@ -42,6 +48,9 @@ public:
     
     //Methods
     bool equals(Expr *e);
+    int interp();
+    bool has_variable();
+    Expr* subst(std::string s, Expr *e);
 };
 
 class Mult : public Expr {
@@ -55,16 +64,22 @@ public:
     
     //Methods
     bool equals(Expr *e);
+    int interp();
+    bool has_variable();
+    Expr* subst(std::string s, Expr *e);
 };
 
 class Var : public Expr {
 public:
-    std::string val;
+    std::string var;
     
     //Default Constructor
     Var(std::string val);
     
     //Methods
     bool equals(Expr *e);
+    int interp();
+    bool has_variable();
+    Expr* subst(std::string s, Expr *e);
 };
 #endif /* expr_hpp */
