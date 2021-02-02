@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		CACD7E9425B7F7C800098D2C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CACD7E9325B7F7C800098D2C /* main.cpp */; };
 		CACD7E9D25B7F82B00098D2C /* use_arguments.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CACD7E9B25B7F82B00098D2C /* use_arguments.cpp */; };
+		CAEC2ED025C9AB2500EF989A /* coverageTesting.m in Sources */ = {isa = PBXBuildFile; fileRef = CAEC2ECF25C9AB2500EF989A /* coverageTesting.m */; };
+		CAEC2ED725C9AB8600EF989A /* expr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CAED112C25BE67F000E9D2CC /* expr.cpp */; };
+		CAEC2EDD25C9AD7000EF989A /* run.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CAEC2EDB25C9AD7000EF989A /* run.cpp */; };
 		CAED112E25BE67F000E9D2CC /* expr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CAED112C25BE67F000E9D2CC /* expr.cpp */; };
 /* End PBXBuildFile section */
 
@@ -29,6 +32,11 @@
 		CACD7E9325B7F7C800098D2C /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		CACD7E9B25B7F82B00098D2C /* use_arguments.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = use_arguments.cpp; sourceTree = "<group>"; };
 		CACD7E9C25B7F82B00098D2C /* use_arguments.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = use_arguments.hpp; sourceTree = "<group>"; };
+		CAEC2ECD25C9AB2500EF989A /* coverageTesting.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = coverageTesting.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CAEC2ECF25C9AB2500EF989A /* coverageTesting.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = coverageTesting.m; sourceTree = "<group>"; };
+		CAEC2ED125C9AB2500EF989A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CAEC2EDA25C9AD3200EF989A /* run.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = run.h; sourceTree = "<group>"; };
+		CAEC2EDB25C9AD7000EF989A /* run.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = run.cpp; sourceTree = "<group>"; };
 		CAED112B25BE65DA00E9D2CC /* catch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = catch.h; sourceTree = "<group>"; };
 		CAED112C25BE67F000E9D2CC /* expr.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = expr.cpp; sourceTree = "<group>"; };
 		CAED112D25BE67F000E9D2CC /* expr.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = expr.hpp; sourceTree = "<group>"; };
@@ -42,6 +50,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CAEC2ECA25C9AB2500EF989A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -49,6 +64,7 @@
 			isa = PBXGroup;
 			children = (
 				CACD7E9225B7F7C800098D2C /* MSDscriptCommandLine */,
+				CAEC2ECE25C9AB2500EF989A /* coverageTesting */,
 				CACD7E9125B7F7C800098D2C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -57,6 +73,7 @@
 			isa = PBXGroup;
 			children = (
 				CACD7E9025B7F7C800098D2C /* MSDscriptCommandLine */,
+				CAEC2ECD25C9AB2500EF989A /* coverageTesting.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -72,6 +89,17 @@
 				CAED112D25BE67F000E9D2CC /* expr.hpp */,
 			);
 			path = MSDscriptCommandLine;
+			sourceTree = "<group>";
+		};
+		CAEC2ECE25C9AB2500EF989A /* coverageTesting */ = {
+			isa = PBXGroup;
+			children = (
+				CAEC2ECF25C9AB2500EF989A /* coverageTesting.m */,
+				CAEC2EDB25C9AD7000EF989A /* run.cpp */,
+				CAEC2EDA25C9AD3200EF989A /* run.h */,
+				CAEC2ED125C9AB2500EF989A /* Info.plist */,
+			);
+			path = coverageTesting;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -94,6 +122,23 @@
 			productReference = CACD7E9025B7F7C800098D2C /* MSDscriptCommandLine */;
 			productType = "com.apple.product-type.tool";
 		};
+		CAEC2ECC25C9AB2500EF989A /* coverageTesting */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CAEC2ED425C9AB2500EF989A /* Build configuration list for PBXNativeTarget "coverageTesting" */;
+			buildPhases = (
+				CAEC2EC925C9AB2500EF989A /* Sources */,
+				CAEC2ECA25C9AB2500EF989A /* Frameworks */,
+				CAEC2ECB25C9AB2500EF989A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = coverageTesting;
+			productName = coverageTesting;
+			productReference = CAEC2ECD25C9AB2500EF989A /* coverageTesting.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -104,6 +149,9 @@
 				TargetAttributes = {
 					CACD7E8F25B7F7C800098D2C = {
 						CreatedOnToolsVersion = 12.3;
+					};
+					CAEC2ECC25C9AB2500EF989A = {
+						CreatedOnToolsVersion = 12.4;
 					};
 				};
 			};
@@ -121,9 +169,20 @@
 			projectRoot = "";
 			targets = (
 				CACD7E8F25B7F7C800098D2C /* MSDscriptCommandLine */,
+				CAEC2ECC25C9AB2500EF989A /* coverageTesting */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		CAEC2ECB25C9AB2500EF989A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		CACD7E8C25B7F7C800098D2C /* Sources */ = {
@@ -133,6 +192,16 @@
 				CACD7E9D25B7F82B00098D2C /* use_arguments.cpp in Sources */,
 				CACD7E9425B7F7C800098D2C /* main.cpp in Sources */,
 				CAED112E25BE67F000E9D2CC /* expr.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CAEC2EC925C9AB2500EF989A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CAEC2EDD25C9AD7000EF989A /* run.cpp in Sources */,
+				CAEC2ED725C9AB8600EF989A /* expr.cpp in Sources */,
+				CAEC2ED025C9AB2500EF989A /* coverageTesting.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -266,6 +335,38 @@
 			};
 			name = Release;
 		};
+		CAEC2ED225C9AB2500EF989A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = coverageTesting/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = mikeLangston.coverageTesting;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		CAEC2ED325C9AB2500EF989A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = coverageTesting/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = mikeLangston.coverageTesting;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -283,6 +384,15 @@
 			buildConfigurations = (
 				CACD7E9825B7F7C800098D2C /* Debug */,
 				CACD7E9925B7F7C800098D2C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CAEC2ED425C9AB2500EF989A /* Build configuration list for PBXNativeTarget "coverageTesting" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CAEC2ED225C9AB2500EF989A /* Debug */,
+				CAEC2ED325C9AB2500EF989A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
