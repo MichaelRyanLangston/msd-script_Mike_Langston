@@ -10,7 +10,18 @@
 
 #include <stdio.h>
 #include <string>
+
 //three kinds of expressions: number, addition of two expressions, multiplication of two epressions.
+
+//Enumeration for pretty print at with alias print_mode_t
+//print_group_none => previous layer needs no parenthasis around it
+//print_group_add => previous layer needed parenthasis
+//print_group_add_or_mult => previous layer needed parenthasis round add or a mult
+typedef enum {
+    print_group_none,
+    print_group_add,
+    print_group_add_or_mult,
+} print_mode_t;
 
 //Expr acts as a Java Interface, so it is meant to be implemented by other classes or rather sub-classes since C++ doesn't have a notion of an interface.
 class Expr {
@@ -20,7 +31,14 @@ public:
     virtual int interp() = 0;
     virtual bool has_variable() = 0;
     virtual Expr* subst(std::string s, Expr *e) = 0;
+    virtual void print(std::ostream& out) = 0;
+    virtual void pretty_print_at(std::ostream& out, print_mode_t mode) = 0;
+    
+    //Methods
+    std::string to_string();
+    void pretty_print(std::ostream& out);
 };
+
 
 class Num : public Expr {
 public:
@@ -35,6 +53,8 @@ public:
     int interp();
     bool has_variable();
     Expr* subst(std::string s, Expr *e);
+    void print(std::ostream& out);
+    void pretty_print_at(std::ostream& out, print_mode_t mode);
 };
 
 class Add : public Expr {
@@ -51,6 +71,8 @@ public:
     int interp();
     bool has_variable();
     Expr* subst(std::string s, Expr *e);
+    void print(std::ostream& out);
+    void pretty_print_at(std::ostream& out, print_mode_t mode);
 };
 
 class Mult : public Expr {
@@ -67,6 +89,8 @@ public:
     int interp();
     bool has_variable();
     Expr* subst(std::string s, Expr *e);
+    void print(std::ostream& out);
+    void pretty_print_at(std::ostream& out, print_mode_t mode);
 };
 
 class Var : public Expr {
@@ -81,5 +105,7 @@ public:
     int interp();
     bool has_variable();
     Expr* subst(std::string s, Expr *e);
+    void print(std::ostream& out);
+    void pretty_print_at(std::ostream& out, print_mode_t mode);
 };
 #endif /* expr_hpp */
