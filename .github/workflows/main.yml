@@ -10,4 +10,4 @@ jobs:
     - uses: actions/checkout@v1
     - name: Build and run tests
       run: make test
-    working-directory: MSDscriptCommandLine/MSDscriptCommandLine
+      working-directory: MSDscriptCommandLine/MSDscriptCommandLine
