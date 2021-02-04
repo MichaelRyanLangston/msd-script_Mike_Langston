@@ -147,25 +147,17 @@ void Add::print(std::ostream& out){
 }
 
 void Add::pretty_print_at(std::ostream& out, print_mode_t mode){
-    //lhs, rhs
-    if(mode == print_group_none){
-        this->lhs->pretty_print_at(out, print_group_add);
-        out << " + ";
-        this->rhs->pretty_print_at(out, print_group_none);
-    }
-    else if(mode == print_group_add){
+    if(mode == print_group_add || mode == print_group_add_or_mult){
         out << "(";
         this->lhs->pretty_print_at(out, print_group_add);
         out << " + ";
-        this->rhs->pretty_print_at(out, print_group_none);
+        this->rhs->pretty_print_at(out, print_group_add);
         out << ")";
     }
     else {
-        out << "(";
         this->lhs->pretty_print_at(out, print_group_add);
         out << " + ";
         this->rhs->pretty_print_at(out, print_group_none);
-        out << ")";
     }
 }
 
@@ -316,23 +308,17 @@ void Mult::print(std::ostream& out){
 }
 
 void Mult::pretty_print_at(std::ostream& out, print_mode_t mode){
-    //lhs, rhs
-    if(mode == print_group_none){
-        this->lhs->pretty_print_at(out, print_group_add_or_mult);
-        out << " * ";
-        this->rhs->pretty_print_at(out, print_group_none);
-    }
-    else if(mode == print_group_add){
-        this->lhs->pretty_print_at(out, print_group_add_or_mult);
-        out << " * ";
-        this->rhs->pretty_print_at(out, print_group_add_or_mult);
-    }
-    else {
+    if(mode == print_group_add_or_mult){
         out << "(";
         this->lhs->pretty_print_at(out, print_group_add_or_mult);
         out << " * ";
         this->rhs->pretty_print_at(out, print_group_none);
         out << ")";
+    }
+    else {
+        this->lhs->pretty_print_at(out, print_group_add_or_mult);
+        out << " * ";
+        this->rhs->pretty_print_at(out, print_group_add);
     }
 }
 

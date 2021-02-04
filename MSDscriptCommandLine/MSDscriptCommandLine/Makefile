@@ -1,5 +1,6 @@
-cmdline: main.cpp use_arguments.cpp use_arguments.hpp catch.h expr.cpp expr.hpp
-	c++ --std=c++14 -O2 -o cmdline main.cpp use_arguments.cpp expr.cpp
-.PHONY:test
+msdscript: main.cpp use_arguments.cpp use_arguments.hpp expr.cpp expr.hpp catch.h
+	c++ --std=c++2a -O2 -o msdscript main.cpp use_arguments.cpp expr.cpp
+
+.PHONY: test
 test: msdscript
 	./msdscript --test
