@@ -25,7 +25,7 @@ void Expr::pretty_print(std::ostream& out){
 }
 
 //Method Tests
-TEST_CASE("Exper Implemntation"){
+TEST_CASE("Exper"){
     CHECK((new Mult(new Add(new Num(0), new Var("y")), new Num(1)))->to_string() == "((0+y)*1)");
 }
 
@@ -65,7 +65,7 @@ void Num::pretty_print_at(std::ostream& out, print_mode_t mode){
 }
 
 //Method Tests
-TEST_CASE("Num Implementation"){
+TEST_CASE("Num"){
     
     //Test Variables
         Num* one = new Num(1);
@@ -147,22 +147,22 @@ void Add::print(std::ostream& out){
 }
 
 void Add::pretty_print_at(std::ostream& out, print_mode_t mode){
-    if(mode == print_group_add || mode == print_group_add_or_mult){
-        out << "(";
-        this->lhs->pretty_print_at(out, print_group_add);
-        out << " + ";
-        this->rhs->pretty_print_at(out, print_group_add);
-        out << ")";
-    }
-    else {
+    if(mode == print_group_none){
         this->lhs->pretty_print_at(out, print_group_add);
         out << " + ";
         this->rhs->pretty_print_at(out, print_group_none);
     }
+    else {
+        out << "(";
+        this->lhs->pretty_print_at(out, print_group_add);
+        out << " + ";
+        this->rhs->pretty_print_at(out, print_group_none);
+        out << ")";
+    }
 }
 
 //Method Tests
-TEST_CASE("Add Test Cases"){
+TEST_CASE("Add"){
     
     //Test Varialbels
         Num* one = new Num(1);
@@ -310,7 +310,7 @@ void Mult::print(std::ostream& out){
 void Mult::pretty_print_at(std::ostream& out, print_mode_t mode){
     if(mode == print_group_add_or_mult){
         out << "(";
-        this->lhs->pretty_print_at(out, print_group_add_or_mult);
+        this->lhs->pretty_print_at(out, print_group_none);
         out << " * ";
         this->rhs->pretty_print_at(out, print_group_none);
         out << ")";
@@ -323,7 +323,7 @@ void Mult::pretty_print_at(std::ostream& out, print_mode_t mode){
 }
 
 //Method Tests
-TEST_CASE("Mult_equals"){
+TEST_CASE("Mul"){
     
     //Test Varialbels
         Num* one = new Num(1);
@@ -430,6 +430,12 @@ TEST_CASE("Mult_equals"){
                 (new Mult(new Mult(new Num(1), new Var("x")), new Num(3)))->pretty_print(rep_cout);
                 CHECK(rep_cout.str() == "(1 * x) * 3");
             }
+        //Mult w/ Nested left Mult
+            {
+                std::stringstream rep_cout("");
+                (new Mult(new Mult(new Num(1), new Var("x")), new Add(new Var("y"), new Num(5))))->pretty_print(rep_cout);
+                CHECK(rep_cout.str() == "(1 * x) * (y + 5)");
+            }
 }
 
 /*Var implementations*/
@@ -471,7 +477,7 @@ void Var::pretty_print_at(std::ostream& out, print_mode_t mode){
 }
 
 //Method Tests
-TEST_CASE("Var_equals"){
+TEST_CASE("Var"){
 
     //Test Varialbels
         Num* one = new Num(1);
@@ -516,4 +522,105 @@ TEST_CASE("Var_equals"){
             (new Var("x"))->pretty_print(rep_cout);
             CHECK(rep_cout.str() == "x");
         }
+}
+
+/*_let implementations*/
+//Default Constructor
+_let::_let(std::string lhs_name, Expr *rhs,Expr *body){
+    this->lhs_name = lhs_name;
+    this->rhs = rhs;
+    this->body = body;
+}
+
+//Methods
+bool _let::equals(Expr *e){
+    _let *l = dynamic_cast<_let*>(e);
+    if(l == NULL)
+        return false;
+    else
+        return this->lhs_name == l->lhs_name && this->rhs->equals(l->rhs) && this->body->equals(l->body);
+}
+
+int _let::interp(){
+    return this->body->subst(this->lhs_name, new Num(this->rhs->interp()))->interp();
+}
+
+bool _let::has_variable(){
+    return this->rhs->has_variable() || this->body->has_variable();
+}
+
+Expr* _let::subst(std::string s, Expr *e){
+    if (this->lhs_name == s) {
+        return this->body->subst(this->lhs_name, new Num(this->rhs->subst(s, e)->interp()));
+    }
+    else{
+        return this->body->subst(s, e);
+    }
+}
+
+void _let::print(std::ostream& out){
+    out << "(_let " << this->lhs_name << "=";
+    this->rhs->print(out);
+    out << " _in ";
+    this->body->print(out);
+    out << ")";
+}
+
+void _let::pretty_print_at(std::ostream& out, print_mode_t mode){
+    out << "_let " << this->lhs_name << " = ";
+    this->rhs->pretty_print_at(out, print_group_none);
+    out << "\n" << "_in ";
+    this->body->pretty_print_at(out, print_group_none);
+}
+
+//Method Tests
+TEST_CASE("_let"){
+    _let* firstExpression = new _let("x", new Num(7), new Mult(new Var("x"), new Num(7)));
+    _let* secondExpression = new _let("x", new Num(7), new _let("x", new Num(8), new Add(new Var("x"), new Num(7))));
+    _let* thridExpression = new _let("x", new Num(7), new _let("x", new Add(new Var("x"), new Num(8)), new Add(new Var("x"), new Num(7))));
+    _let* fourthExpression = new _let("x", new Num(7), new _let("y", new Num(8), new Add(new Var("x"), new Num(7))));
+    _let* invalidExpression_body_free_var = new _let("x", new Num(7), new _let("x", new Add(new Var("x"), new Num(8)), new Add(new Var("y"), new Num(7))));
+    _let* invalidExpression_rhs_free_var = new _let("y", new Var("y"), new Add(new Num(3), new Var("y")));
+    _let* noVariablePresent =new _let("x", new Num(7), new Mult(new Num(5), new Num(7)));
+    _let* print_test = new _let("x", new Num(5), new Add(new _let("y", new Num(3), new Add(new Var("y"), new Num(2))), new Var("x")));
+    //Checking _let Equality
+    CHECK(firstExpression->equals(new _let("x", new Num(7), new Mult(new Var("x"), new Num(7)))));
+
+    //Checking _let Inequality
+    CHECK(!(firstExpression->equals(new _let("y", new Num(7), new Mult(new Var("x"), new Num(7))))));
+    CHECK(!(firstExpression->equals(new _let("x", new Num(8), new Mult(new Var("x"), new Num(7))))));
+    CHECK(!(firstExpression->equals(new _let("x", new Num(7), new Mult(new Var("y"), new Num(7))))));
+    CHECK(!(firstExpression->equals(new _let("x", new Num(7), new Mult(new Var("x"), new Num(8))))));
+    CHECK(!(firstExpression->equals(new _let("x", new Num(7), new Mult(new Num(7), new Var("x"))))));
+    
+    //Checking Class Inequality
+    CHECK(!firstExpression->equals(new Var("x")));
+    CHECK(!firstExpression->equals(new Num(7)));
+    CHECK(!firstExpression->equals(new Add(new Num(0), new Num(0))));
+    CHECK(!firstExpression->equals(new Mult(new Num(0), new Num(0))));
+    
+    //Checking interp() and subst()
+    CHECK(firstExpression->interp() == 49);
+    CHECK(secondExpression->interp() == 15);
+    CHECK(thridExpression->interp() == 22);
+    CHECK(fourthExpression->interp() == 14);
+    CHECK(noVariablePresent->interp() == 35);
+    CHECK_THROWS_WITH(invalidExpression_rhs_free_var->interp(), "The variable has no value assigned to it yet.");
+    CHECK_THROWS_WITH(invalidExpression_body_free_var->interp(), "The variable has no value assigned to it yet.");
+    
+    //Check has_variable()
+    CHECK(firstExpression->has_variable());
+    CHECK(secondExpression->has_variable());
+    CHECK(thridExpression->has_variable());
+    CHECK(invalidExpression_rhs_free_var->has_variable());
+    CHECK(invalidExpression_body_free_var->has_variable());
+    CHECK(!noVariablePresent->has_variable());
+        
+    
+    //Checking print()
+    CHECK(firstExpression->to_string() == "(_let x=7 _in (x*7))");
+    CHECK(print_test->to_string() == "(_let x=5 _in ((_let y=3 _in (y+2))+x))");
+          
+    //Checking pretty_print()
+       
 }

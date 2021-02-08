@@ -108,4 +108,23 @@ public:
     void print(std::ostream& out);
     void pretty_print_at(std::ostream& out, print_mode_t mode);
 };
+
+class _let : public Expr {
+public:
+    std::string lhs_name;
+    Expr *rhs;
+    Expr *body;
+    
+    //Default Constructor
+    _let(std::string lhs_name, Expr *rhs,Expr *body);
+    
+    //Methods
+    bool equals(Expr *e);
+    int interp();
+    bool has_variable();
+    Expr* subst(std::string s, Expr *e);
+    void print(std::ostream& out);
+    void pretty_print_at(std::ostream& out, print_mode_t mode);
+};
+
 #endif /* expr_hpp */
