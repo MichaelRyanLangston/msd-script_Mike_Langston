@@ -21,7 +21,7 @@ std::string Expr::to_string(){
 }
 
 void Expr::pretty_print(std::ostream& out){
-    pretty_print_at(out, print_group_none);
+    pretty_print_at(out, print_group_none, 0);
 }
 
 //Method Tests
@@ -60,7 +60,7 @@ void Num::print(std::ostream& out){
     out << this->val;
 }
 
-void Num::pretty_print_at(std::ostream& out, print_mode_t mode){
+void Num::pretty_print_at(std::ostream& out, print_mode_t mode, int num){
     print(out);
 }
 
@@ -146,17 +146,17 @@ void Add::print(std::ostream& out){
     out << ")";
 }
 
-void Add::pretty_print_at(std::ostream& out, print_mode_t mode){
+void Add::pretty_print_at(std::ostream& out, print_mode_t mode, int num){
     if(mode == print_group_none){
-        this->lhs->pretty_print_at(out, print_group_add);
+        this->lhs->pretty_print_at(out, print_group_add, 0);
         out << " + ";
-        this->rhs->pretty_print_at(out, print_group_none);
+        this->rhs->pretty_print_at(out, print_group_none, 0);
     }
     else {
         out << "(";
-        this->lhs->pretty_print_at(out, print_group_add);
+        this->lhs->pretty_print_at(out, print_group_add, 0);
         out << " + ";
-        this->rhs->pretty_print_at(out, print_group_none);
+        this->rhs->pretty_print_at(out, print_group_none, 0);
         out << ")";
     }
 }
@@ -307,18 +307,18 @@ void Mult::print(std::ostream& out){
     out << ")";
 }
 
-void Mult::pretty_print_at(std::ostream& out, print_mode_t mode){
+void Mult::pretty_print_at(std::ostream& out, print_mode_t mode, int num){
     if(mode == print_group_add_or_mult){
         out << "(";
-        this->lhs->pretty_print_at(out, print_group_none);
+        this->lhs->pretty_print_at(out, print_group_none, 0);
         out << " * ";
-        this->rhs->pretty_print_at(out, print_group_none);
+        this->rhs->pretty_print_at(out, print_group_none, 0);
         out << ")";
     }
     else {
-        this->lhs->pretty_print_at(out, print_group_add_or_mult);
+        this->lhs->pretty_print_at(out, print_group_add_or_mult, 0);
         out << " * ";
-        this->rhs->pretty_print_at(out, print_group_add);
+        this->rhs->pretty_print_at(out, print_group_add, 0);
     }
 }
 
@@ -472,7 +472,7 @@ void Var::print(std::ostream& out){
     out << this->var;
 }
 
-void Var::pretty_print_at(std::ostream& out, print_mode_t mode){
+void Var::pretty_print_at(std::ostream& out, print_mode_t mode, int num){
     print(out);
 }
 
@@ -566,11 +566,11 @@ void _let::print(std::ostream& out){
     out << ")";
 }
 
-void _let::pretty_print_at(std::ostream& out, print_mode_t mode){
+void _let::pretty_print_at(std::ostream& out, print_mode_t mode, int num){
     out << "_let " << this->lhs_name << " = ";
-    this->rhs->pretty_print_at(out, print_group_none);
+    this->rhs->pretty_print_at(out, print_group_none, 0);
     out << "\n" << "_in ";
-    this->body->pretty_print_at(out, print_group_none);
+    this->body->pretty_print_at(out, print_group_add, 0);
 }
 
 //Method Tests
@@ -582,7 +582,10 @@ TEST_CASE("_let"){
     _let* invalidExpression_body_free_var = new _let("x", new Num(7), new _let("x", new Add(new Var("x"), new Num(8)), new Add(new Var("y"), new Num(7))));
     _let* invalidExpression_rhs_free_var = new _let("y", new Var("y"), new Add(new Num(3), new Var("y")));
     _let* noVariablePresent =new _let("x", new Num(7), new Mult(new Num(5), new Num(7)));
+    
+    //pretty print at test variables
     _let* print_test = new _let("x", new Num(5), new Add(new _let("y", new Num(3), new Add(new Var("y"), new Num(2))), new Var("x")));
+    Add* exampleTests = new Add(new Mult(new Num(5), new _let("x", new Num(5), new Var("x"))), new Num(1));
     //Checking _let Equality
     CHECK(firstExpression->equals(new _let("x", new Num(7), new Mult(new Var("x"), new Num(7)))));
 
@@ -622,5 +625,11 @@ TEST_CASE("_let"){
     CHECK(print_test->to_string() == "(_let x=5 _in ((_let y=3 _in (y+2))+x))");
           
     //Checking pretty_print()
-       
+    {
+        std::stringstream rep_cout ("");
+        print_test->pretty_print(rep_cout);
+        CHECK(rep_cout.str() == "_let x = 5\n_in  (_let y = 3\n      _in  y + 2) + x");
+    }
 }
+
+              

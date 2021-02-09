@@ -32,7 +32,7 @@ public:
     virtual bool has_variable() = 0;
     virtual Expr* subst(std::string s, Expr *e) = 0;
     virtual void print(std::ostream& out) = 0;
-    virtual void pretty_print_at(std::ostream& out, print_mode_t mode) = 0;
+    virtual void pretty_print_at(std::ostream& out, print_mode_t mode, int num) = 0;
     
     //Methods
     std::string to_string();
@@ -54,7 +54,7 @@ public:
     bool has_variable();
     Expr* subst(std::string s, Expr *e);
     void print(std::ostream& out);
-    void pretty_print_at(std::ostream& out, print_mode_t mode);
+    void pretty_print_at(std::ostream& out, print_mode_t mode, int num);
 };
 
 class Add : public Expr {
@@ -72,7 +72,7 @@ public:
     bool has_variable();
     Expr* subst(std::string s, Expr *e);
     void print(std::ostream& out);
-    void pretty_print_at(std::ostream& out, print_mode_t mode);
+    void pretty_print_at(std::ostream& out, print_mode_t mode, int num);
 };
 
 class Mult : public Expr {
@@ -90,7 +90,7 @@ public:
     bool has_variable();
     Expr* subst(std::string s, Expr *e);
     void print(std::ostream& out);
-    void pretty_print_at(std::ostream& out, print_mode_t mode);
+    void pretty_print_at(std::ostream& out, print_mode_t mode, int num);
 };
 
 class Var : public Expr {
@@ -106,7 +106,7 @@ public:
     bool has_variable();
     Expr* subst(std::string s, Expr *e);
     void print(std::ostream& out);
-    void pretty_print_at(std::ostream& out, print_mode_t mode);
+    void pretty_print_at(std::ostream& out, print_mode_t mode, int num);
 };
 
 class _let : public Expr {
@@ -124,7 +124,7 @@ public:
     bool has_variable();
     Expr* subst(std::string s, Expr *e);
     void print(std::ostream& out);
-    void pretty_print_at(std::ostream& out, print_mode_t mode);
+    void pretty_print_at(std::ostream& out, print_mode_t mode, int num);
 };
 
 #endif /* expr_hpp */

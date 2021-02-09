@@ -145,7 +145,7 @@
 		CACD7E8825B7F7C800098D2C /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1230;
+				LastUpgradeCheck = 1240;
 				TargetAttributes = {
 					CACD7E8F25B7F7C800098D2C = {
 						CreatedOnToolsVersion = 12.3;
@@ -322,6 +322,7 @@
 		CACD7E9825B7F7C800098D2C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -330,6 +331,7 @@
 		CACD7E9925B7F7C800098D2C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
