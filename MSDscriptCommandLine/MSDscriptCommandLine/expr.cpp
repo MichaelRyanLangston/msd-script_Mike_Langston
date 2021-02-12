@@ -10,7 +10,7 @@
 #include <stdexcept>
 //stringstream libaray
 #include <sstream>
-
+#include <iostream>
 
 /*Exper Implemntation Interface*/
 //Methods
@@ -20,9 +20,9 @@ std::string Expr::to_string(){
     return stringify.str();
 }
 
-void Expr::pretty_print(std::ostream& out){
-    pretty_print_at(out, print_group_none, 0);
-}
+//void Expr::pretty_print(std::ostream& out){
+//    pretty_print_at(out, print_group_none, 0);
+//}
 
 //Method Tests
 TEST_CASE("Exper"){
@@ -60,9 +60,9 @@ void Num::print(std::ostream& out){
     out << this->val;
 }
 
-void Num::pretty_print_at(std::ostream& out, print_mode_t mode, int num){
-    print(out);
-}
+//void Num::pretty_print_at(std::ostream& out, print_mode_t mode, int num){
+//    print(out);
+//}
 
 //Method Tests
 TEST_CASE("Num"){
@@ -103,11 +103,11 @@ TEST_CASE("Num"){
         }
     
     //Checking pretty_print()
-        {
-            std::stringstream rep_cout ("");
-            one->pretty_print(rep_cout);
-            CHECK(rep_cout.str() == "1");
-        }
+//        {
+//            std::stringstream rep_cout ("");
+//            one->pretty_print(rep_cout);
+//            CHECK(rep_cout.str() == "1");
+//        }
 }
 
 /*Add implementations*/
@@ -146,20 +146,20 @@ void Add::print(std::ostream& out){
     out << ")";
 }
 
-void Add::pretty_print_at(std::ostream& out, print_mode_t mode, int num){
-    if(mode == print_group_none){
-        this->lhs->pretty_print_at(out, print_group_add, 0);
-        out << " + ";
-        this->rhs->pretty_print_at(out, print_group_none, 0);
-    }
-    else {
-        out << "(";
-        this->lhs->pretty_print_at(out, print_group_add, 0);
-        out << " + ";
-        this->rhs->pretty_print_at(out, print_group_none, 0);
-        out << ")";
-    }
-}
+//void Add::pretty_print_at(std::ostream& out, print_mode_t mode, int num){
+//    if(mode == print_group_none){
+//        this->lhs->pretty_print_at(out, print_group_add, 0);
+//        out << " + ";
+//        this->rhs->pretty_print_at(out, print_group_none, 0);
+//    }
+//    else {
+//        out << "(";
+//        this->lhs->pretty_print_at(out, print_group_add, 0);
+//        out << " + ";
+//        this->rhs->pretty_print_at(out, print_group_none, 0);
+//        out << ")";
+//    }
+//}
 
 //Method Tests
 TEST_CASE("Add"){
@@ -220,55 +220,55 @@ TEST_CASE("Add"){
             CHECK((new Add(new Var("x"), new Num(7)))->subst("mismatch", new Var("y"))->equals(new Add(new Var("x"), new Num(7))));
     
     //Checking print()
-        //No nesting
-            {
-                std::stringstream rep_cout ("");
-                (new Add(new Num(1), new Var("x")))->print(rep_cout);
-                CHECK(rep_cout.str() == "(1+x)");
-            }
-        //Nested right
-            {
-                std::stringstream rep_cout("");
-                (new Add(new Num(3),new Add(new Num(1), new Var("x"))))->print(rep_cout);
-                CHECK(rep_cout.str() == "(3+(1+x))");
-            }
-        //Nested left
-            {
-                std::stringstream rep_cout("");
-                (new Add(new Add(new Num(1), new Var("x")), new Num(3)))->print(rep_cout);
-                CHECK(rep_cout.str() == "((1+x)+3)");
-            }
-    //Checking pretty_print()
-        //No nesting
-            {
-                std::stringstream rep_cout ("");
-                (new Add(new Num(1), new Var("x")))->pretty_print(rep_cout);
-                CHECK(rep_cout.str() == "1 + x");
-            }
-        //Add w/ Nested right Add
-            {
-                std::stringstream rep_cout("");
-                (new Add(new Num(3),new Add(new Num(1), new Var("x"))))->pretty_print(rep_cout);
-                CHECK(rep_cout.str() == "3 + 1 + x");
-            }
-        //Add w/ Nested left Add
-            {
-                std::stringstream rep_cout("");
-                (new Add(new Add(new Num(1), new Var("x")), new Num(3)))->pretty_print(rep_cout);
-                CHECK(rep_cout.str() == "(1 + x) + 3");
-            }
-        //Add w/ Nested right Mult
-            {
-                std::stringstream rep_cout("");
-                (new Add(new Num(3), new Mult(new Num(1), new Var("x"))))->pretty_print(rep_cout);
-                CHECK(rep_cout.str() == "3 + 1 * x");
-            }
-        //Add w/ Nested left Mult
-            {
-                std::stringstream rep_cout("");
-                (new Add(new Mult(new Num(1), new Var("x")), new Num(3)))->pretty_print(rep_cout);
-                CHECK(rep_cout.str() == "1 * x + 3");
-            }
+//        //No nesting
+//            {
+//                std::stringstream rep_cout ("");
+//                (new Add(new Num(1), new Var("x")))->print(rep_cout);
+//                CHECK(rep_cout.str() == "(1+x)");
+//            }
+//        //Nested right
+//            {
+//                std::stringstream rep_cout("");
+//                (new Add(new Num(3),new Add(new Num(1), new Var("x"))))->print(rep_cout);
+//                CHECK(rep_cout.str() == "(3+(1+x))");
+//            }
+//        //Nested left
+//            {
+//                std::stringstream rep_cout("");
+//                (new Add(new Add(new Num(1), new Var("x")), new Num(3)))->print(rep_cout);
+//                CHECK(rep_cout.str() == "((1+x)+3)");
+//            }
+//    //Checking pretty_print()
+//        //No nesting
+//            {
+//                std::stringstream rep_cout ("");
+//                (new Add(new Num(1), new Var("x")))->pretty_print(rep_cout);
+//                CHECK(rep_cout.str() == "1 + x");
+//            }
+//        //Add w/ Nested right Add
+//            {
+//                std::stringstream rep_cout("");
+//                (new Add(new Num(3),new Add(new Num(1), new Var("x"))))->pretty_print(rep_cout);
+//                CHECK(rep_cout.str() == "3 + 1 + x");
+//            }
+//        //Add w/ Nested left Add
+//            {
+//                std::stringstream rep_cout("");
+//                (new Add(new Add(new Num(1), new Var("x")), new Num(3)))->pretty_print(rep_cout);
+//                CHECK(rep_cout.str() == "(1 + x) + 3");
+//            }
+//        //Add w/ Nested right Mult
+//            {
+//                std::stringstream rep_cout("");
+//                (new Add(new Num(3), new Mult(new Num(1), new Var("x"))))->pretty_print(rep_cout);
+//                CHECK(rep_cout.str() == "3 + 1 * x");
+//            }
+//        //Add w/ Nested left Mult
+//            {
+//                std::stringstream rep_cout("");
+//                (new Add(new Mult(new Num(1), new Var("x")), new Num(3)))->pretty_print(rep_cout);
+//                CHECK(rep_cout.str() == "1 * x + 3");
+//            }
 }
 
 /*Mult implementations*/
@@ -307,20 +307,20 @@ void Mult::print(std::ostream& out){
     out << ")";
 }
 
-void Mult::pretty_print_at(std::ostream& out, print_mode_t mode, int num){
-    if(mode == print_group_add_or_mult){
-        out << "(";
-        this->lhs->pretty_print_at(out, print_group_none, 0);
-        out << " * ";
-        this->rhs->pretty_print_at(out, print_group_none, 0);
-        out << ")";
-    }
-    else {
-        this->lhs->pretty_print_at(out, print_group_add_or_mult, 0);
-        out << " * ";
-        this->rhs->pretty_print_at(out, print_group_add, 0);
-    }
-}
+//void Mult::pretty_print_at(std::ostream& out, print_mode_t mode, int num){
+//    if(mode == print_group_add_or_mult){
+//        out << "(";
+//        this->lhs->pretty_print_at(out, print_group_none, 0);
+//        out << " * ";
+//        this->rhs->pretty_print_at(out, print_group_none, 0);
+//        out << ")";
+//    }
+//    else {
+//        this->lhs->pretty_print_at(out, print_group_add_or_mult, 0);
+//        out << " * ";
+//        this->rhs->pretty_print_at(out, print_group_add, 0);
+//    }
+//}
 
 //Method Tests
 TEST_CASE("Mul"){
@@ -400,42 +400,42 @@ TEST_CASE("Mul"){
             }
     
     //Checking pretty_print()
-        //No nesting
-            {
-                std::stringstream rep_cout ("");
-                (new Mult(new Num(1), new Var("x")))->pretty_print(rep_cout);
-                CHECK(rep_cout.str() == "1 * x");
-            }
-        //Mult w/ Nested right Add
-            {
-                std::stringstream rep_cout("");
-                (new Mult(new Num(3),new Add(new Num(1), new Var("x"))))->pretty_print(rep_cout);
-                CHECK(rep_cout.str() == "3 * (1 + x)");
-            }
-        //Mult w/ Nested left Add
-            {
-                std::stringstream rep_cout("");
-                (new Mult(new Add(new Num(1), new Var("x")), new Num(3)))->pretty_print(rep_cout);
-                CHECK(rep_cout.str() == "(1 + x) * 3");
-            }
-        //Mult w/ Nested right Mult
-            {
-                std::stringstream rep_cout("");
-                (new Mult(new Num(3), new Mult(new Num(1), new Var("x"))))->pretty_print(rep_cout);
-                CHECK(rep_cout.str() == "3 * 1 * x");
-            }
-        //Mult w/ Nested left Mult
-            {
-                std::stringstream rep_cout("");
-                (new Mult(new Mult(new Num(1), new Var("x")), new Num(3)))->pretty_print(rep_cout);
-                CHECK(rep_cout.str() == "(1 * x) * 3");
-            }
-        //Mult w/ Nested left Mult
-            {
-                std::stringstream rep_cout("");
-                (new Mult(new Mult(new Num(1), new Var("x")), new Add(new Var("y"), new Num(5))))->pretty_print(rep_cout);
-                CHECK(rep_cout.str() == "(1 * x) * (y + 5)");
-            }
+//        //No nesting
+//            {
+//                std::stringstream rep_cout ("");
+//                (new Mult(new Num(1), new Var("x")))->pretty_print(rep_cout);
+//                CHECK(rep_cout.str() == "1 * x");
+//            }
+//        //Mult w/ Nested right Add
+//            {
+//                std::stringstream rep_cout("");
+//                (new Mult(new Num(3),new Add(new Num(1), new Var("x"))))->pretty_print(rep_cout);
+//                CHECK(rep_cout.str() == "3 * (1 + x)");
+//            }
+//        //Mult w/ Nested left Add
+//            {
+//                std::stringstream rep_cout("");
+//                (new Mult(new Add(new Num(1), new Var("x")), new Num(3)))->pretty_print(rep_cout);
+//                CHECK(rep_cout.str() == "(1 + x) * 3");
+//            }
+//        //Mult w/ Nested right Mult
+//            {
+//                std::stringstream rep_cout("");
+//                (new Mult(new Num(3), new Mult(new Num(1), new Var("x"))))->pretty_print(rep_cout);
+//                CHECK(rep_cout.str() == "3 * 1 * x");
+//            }
+//        //Mult w/ Nested left Mult
+//            {
+//                std::stringstream rep_cout("");
+//                (new Mult(new Mult(new Num(1), new Var("x")), new Num(3)))->pretty_print(rep_cout);
+//                CHECK(rep_cout.str() == "(1 * x) * 3");
+//            }
+//        //Mult w/ Nested left Mult
+//            {
+//                std::stringstream rep_cout("");
+//                (new Mult(new Mult(new Num(1), new Var("x")), new Add(new Var("y"), new Num(5))))->pretty_print(rep_cout);
+//                CHECK(rep_cout.str() == "(1 * x) * (y + 5)");
+//            }
 }
 
 /*Var implementations*/
@@ -472,9 +472,9 @@ void Var::print(std::ostream& out){
     out << this->var;
 }
 
-void Var::pretty_print_at(std::ostream& out, print_mode_t mode, int num){
-    print(out);
-}
+//void Var::pretty_print_at(std::ostream& out, print_mode_t mode, int num){
+//    print(out);
+//}
 
 //Method Tests
 TEST_CASE("Var"){
@@ -517,11 +517,11 @@ TEST_CASE("Var"){
             CHECK(rep_cout.str() == "x");
         }
     //Checking pretty_print()
-        {
-            std::stringstream rep_cout ("");
-            (new Var("x"))->pretty_print(rep_cout);
-            CHECK(rep_cout.str() == "x");
-        }
+//        {
+//            std::stringstream rep_cout ("");
+//            (new Var("x"))->pretty_print(rep_cout);
+//            CHECK(rep_cout.str() == "x");
+//        }
 }
 
 /*_let implementations*/
@@ -550,12 +550,14 @@ bool _let::has_variable(){
 }
 
 Expr* _let::subst(std::string s, Expr *e){
-    if (this->lhs_name == s) {
-        return this->body->subst(this->lhs_name, new Num(this->rhs->subst(s, e)->interp()));
+    if(this->lhs_name == s){
+        this->rhs = this->rhs->subst(s, e);
     }
     else{
-        return this->body->subst(s, e);
+        this->rhs = this->rhs->subst(s, e);
+        this->body = this->body->subst(s, e);
     }
+    return this;
 }
 
 void _let::print(std::ostream& out){
@@ -566,12 +568,12 @@ void _let::print(std::ostream& out){
     out << ")";
 }
 
-void _let::pretty_print_at(std::ostream& out, print_mode_t mode, int num){
-    out << "_let " << this->lhs_name << " = ";
-    this->rhs->pretty_print_at(out, print_group_none, 0);
-    out << "\n" << "_in ";
-    this->body->pretty_print_at(out, print_group_add, 0);
-}
+//void _let::pretty_print_at(std::ostream& out, print_mode_t mode, int num){
+//    out << "_let " << this->lhs_name << " = ";
+//    this->rhs->pretty_print_at(out, print_group_none, 0);
+//    out << "\n" << "_in ";
+//    this->body->pretty_print_at(out, print_group_add, 0);
+//}
 
 //Method Tests
 TEST_CASE("_let"){
@@ -602,7 +604,65 @@ TEST_CASE("_let"){
     CHECK(!firstExpression->equals(new Add(new Num(0), new Num(0))));
     CHECK(!firstExpression->equals(new Mult(new Num(0), new Num(0))));
     
-    //Checking interp() and subst()
+    //Checking subst()
+    // _let x = 1
+    // _in  x + 2  -> subst("x", y+3)
+    // ==
+    // _let x = 1
+    // _in  x + 2
+    Expr* noSubstitutionNeeded = new _let("x", new Num(1),new Add(new Var("x"), new Num(2)));
+    CHECK(noSubstitutionNeeded->subst("x", new Add(new Var("y"), new Num(3)))->equals(new _let("x", new Num(1),new Add(new Var("x"), new Num(2)))));
+    
+    // _let z = x
+    // _in  z + 2 -> subst("z", 0)
+    // =
+    // _let z = x
+    // _in  z + 2
+    Expr* noSubstitutionNeeded_DifferentVariable = new _let("z", new Var("x"), new Add(new Var("z"), new Num(2)));
+    CHECK(noSubstitutionNeeded_DifferentVariable->subst("z", new Num(0))->equals(new _let("z", new Var("x"), new Add(new Var("z"), new Num(2)))));
+    
+    // _let x = x
+    // _in  x + 2  -> subst("x", y+3)
+    // ==
+    // _let x = y+3
+    // _in  x + 2
+    Expr* subOnlyTheRHS_SameVariable = new _let("x", new Var("x"), new Add(new Var("x"), new Num(2)));
+    CHECK(subOnlyTheRHS_SameVariable->subst("x", new Add(new Var("y"), new Num(3)))->equals(new _let("x", new Add(new Var("y"), new Num(3)), new Add(new Var("x"), new Num(2)))));
+    
+    // _let x = y
+    // _in  x + 2 -> subst("y", 8)
+    // =
+    // _let x = 8
+    // _in  x + 2
+    Expr* subOnlyTheRHS_DifferentVariable = new _let("x", new Var("y"), new Add(new Var("x"), new Num(2)));
+    CHECK(subOnlyTheRHS_DifferentVariable->subst("y", new Num(8))->equals(new _let("x", new Num(8), new Add(new Var("x"), new Num(2)))));
+    
+    // _let z = z + 2
+    // _in  z + 2 -> subst("z", 0)
+    // =
+    // _let z = 0 + 2
+    // _in  z + 2
+    Expr* subOnlyRHS_Addition = new _let("z", new Add(new Var("z"), new Num(2)), new Add(new Var("z"), new Num(2)));
+    CHECK(subOnlyRHS_Addition->subst("z", new Num(0))->equals(new _let("z", new Add(new Num(0), new Num(2)), new Add(new Var("z"), new Num(2)))));
+    
+    // _let x = y
+    // _in  x + y -> subst("y", 8)
+    // ==
+    // _let x = 8
+    // _in  x + 8
+    Expr* subTheRHSAndBody = new _let("x", new Var("y"), new Add(new Var("x"), new Var("y")));
+    CHECK(subTheRHSAndBody->subst("y", new Num(8))->equals(new _let("x", new Num(8), new Add(new Var("x"), new Num(8)))));
+    
+    // _let x = 8
+    // _in  x + 2 + y -> subst("y", 9)
+    // =
+    // _let x = 8
+    // _in  x + 2 + 9
+    Expr* subWithinBodyOnly = new _let("x", new Num(8), new Add(new Var("x"), new Add(new Num(2), new Var("y"))));
+    CHECK(subWithinBodyOnly->subst("y", new Num(9))->equals(new _let("x", new Num(8), new Add(new Var("x"), new Add(new Num(2), new Num(9))))));
+    
+    
+    //Checking interp()
     CHECK(firstExpression->interp() == 49);
     CHECK(secondExpression->interp() == 15);
     CHECK(thridExpression->interp() == 22);
@@ -624,12 +684,10 @@ TEST_CASE("_let"){
     CHECK(firstExpression->to_string() == "(_let x=7 _in (x*7))");
     CHECK(print_test->to_string() == "(_let x=5 _in ((_let y=3 _in (y+2))+x))");
           
-    //Checking pretty_print()
-    {
-        std::stringstream rep_cout ("");
-        print_test->pretty_print(rep_cout);
-        CHECK(rep_cout.str() == "_let x = 5\n_in  (_let y = 3\n      _in  y + 2) + x");
-    }
+//    //Checking pretty_print()
+//    {
+//        std::stringstream rep_cout ("");
+//        print_test->pretty_print(rep_cout);
+//        CHECK(rep_cout.str() == "_let x = 5\n_in  (_let y = 3\n      _in  y + 2) + x");
+//    }
 }
-
-              
