@@ -8,9 +8,12 @@
 #include "expr.hpp"
 #include "catch.h"
 #include <stdexcept>
+
 //stringstream libaray
 #include <sstream>
 #include <iostream>
+
+
 
 /*Exper Implemntation Interface*/
 //Methods
@@ -20,6 +23,7 @@ std::string Expr::to_string(){
     return stringify.str();
 }
 
+/* Depricated */
 //void Expr::pretty_print(std::ostream& out){
 //    pretty_print_at(out, print_group_none, 0);
 //}
@@ -27,6 +31,250 @@ std::string Expr::to_string(){
 //Method Tests
 TEST_CASE("Exper"){
     CHECK((new Mult(new Add(new Num(0), new Var("y")), new Num(1)))->to_string() == "((0+y)*1)");
+}
+
+//Helper Functions for Parsing Functions
+void consume_character(std::istream &in, int expected){
+    int character_To_Check = in.get();
+    if(character_To_Check != expected)
+        throw std::runtime_error("The character being consumed doesn't match the character you expected.");
+}
+
+TEST_CASE("consume_character"){
+    {
+        std::stringstream testing ("j");
+        consume_character(testing, 'j');
+        CHECK(testing.get() == EOF);
+    }
+    
+    {
+        std::stringstream testing ("p");
+        CHECK_THROWS_WITH(consume_character(testing, 'j'), "The character being consumed doesn't match the character you expected.");
+    }
+   
+}
+
+void skip_whitespace(std::istream &in){
+    while (true) {
+        int c = in.peek();
+        if(!isspace(c))
+            break;
+        consume_character(in, c);
+    }
+}
+
+TEST_CASE("skip_whitespace"){
+    {
+        std::stringstream testing ("       j");
+        skip_whitespace(testing);
+        CHECK(testing.get() == 'j');
+    }
+    
+    {
+        std::stringstream testing ("j        ");
+        skip_whitespace(testing);
+        CHECK(testing.get() == 'j');
+    }
+}
+
+void parse_keyword(std::istream &to_Parse, std::string expected_keyword){
+    for (char expected_char : expected_keyword) {
+        char character_To_Check = to_Parse.peek();
+        if(expected_char == character_To_Check)
+            consume_character(to_Parse, expected_char);
+        else
+            throw std::runtime_error("Unexpected keyword found.");
+    }
+}
+
+TEST_CASE("parse_keyword"){
+    {
+        std::stringstream testing ("_in");
+        parse_keyword(testing, "_in");
+        CHECK(testing.get() == EOF);
+    }
+    
+    {
+        std::stringstream testing ("_n");
+        CHECK_THROWS_WITH(parse_keyword(testing, "_in"), "Unexpected keyword found.");
+    }
+}
+
+Expr* parse_num(std::istream &to_Parse){
+    int to_Return = 0;
+    bool is_Negative = false;
+    
+    if(to_Parse.peek() == '-'){
+        is_Negative = true;
+        consume_character(to_Parse, '-');
+    }
+    
+    while (true) {
+        int input_Charater = to_Parse.peek();
+        if(isdigit(input_Charater)){
+            consume_character(to_Parse, input_Charater);
+            to_Return = to_Return * 10 + (input_Charater - '0');
+        }
+        else
+            break;
+    }
+    
+    if(is_Negative)
+        to_Return = -to_Return;
+    
+    return new Num(to_Return);
+}
+
+TEST_CASE("parse_num"){
+    {
+        std::stringstream testing ("33");
+        CHECK(parse_num(testing)->equals(new Num(33)));
+    }
+    
+    {
+        std::stringstream testing ("-33");
+        CHECK(parse_num(testing)->equals(new Num(-33)));
+    }
+    
+    {
+        std::stringstream testing ("-");
+        CHECK(parse_num(testing)->equals(new Num(0)));
+    }
+    
+    {
+        std::stringstream testing ("g");
+        CHECK(parse_num(testing)->equals(new Num(0)));
+    }
+}
+
+Expr* parse_var(std::istream &to_Parse){
+    std::string to_Return = "";
+    
+    while (true) {
+        char input_Charater = to_Parse.peek();
+        if(isalpha(input_Charater)){
+            consume_character(to_Parse, input_Charater);
+            to_Return += input_Charater;
+        }
+        else
+            break;
+    }
+    return new Var(to_Return);
+}
+
+TEST_CASE("parse_var"){
+    {
+        std::stringstream testing ("g");
+        CHECK(parse_var(testing)->equals(new Var("g")));
+    }
+    
+    {
+        std::stringstream testing ("guess0");
+        CHECK(parse_var(testing)->equals(new Var("guess")));
+    }
+    
+    {
+        std::stringstream testing ("gu0ess");
+        CHECK(parse_var(testing)->equals(new Var("gu")));
+    }
+    
+    {
+        std::stringstream testing ("0guess");
+        CHECK(parse_var(testing)->equals(new Var("")));
+    }
+}
+
+Expr* parse_let(std::istream &to_Parse){
+    parse_keyword(to_Parse, "_let");
+    skip_whitespace(to_Parse);
+    std::string lhs_name = parse_var(to_Parse)->to_string();
+    
+    skip_whitespace(to_Parse);
+    parse_keyword(to_Parse, "=");
+    Expr* rhs = parse_expr(to_Parse);
+    
+    parse_keyword(to_Parse, "_in");
+    skip_whitespace(to_Parse);
+    Expr* body = parse_expr(to_Parse);
+    
+    return new _let(lhs_name, rhs, body);
+}
+
+TEST_CASE("parse_let"){
+    {
+        std::stringstream testing ("_let x=5 _in  x + 3");
+        CHECK(parse_let(testing)->equals(new _let("x", new Num(5), new Add(new Var("x"), new Num (3)))));
+    }
+}
+
+
+//Parsing Functions
+Expr* parse_expr(std::istream & to_Parse){
+    Expr* e = parse_addend(to_Parse);
+    
+    skip_whitespace(to_Parse);
+    
+    int c = to_Parse.peek();
+    if (c == '+') {
+        consume_character(to_Parse, '+');
+        Expr* rhs = parse_expr(to_Parse);
+        return new Add(e, rhs);
+    }
+    else
+        return e;
+}
+
+TEST_CASE("parse_expr"){
+}
+
+Expr* parse_addend(std::istream &to_Parse){
+    Expr* e = parse_multicand(to_Parse);
+    
+    skip_whitespace(to_Parse);
+    
+    int c = to_Parse.peek();
+    if (c == '*') {
+        consume_character(to_Parse, '*');
+        Expr* rhs = parse_addend(to_Parse);
+        return new Mult(e, rhs);
+    }
+    else
+        return e;
+}
+
+TEST_CASE("parse addend"){
+    
+}
+
+Expr* parse_multicand(std::istream &to_Parse){
+    skip_whitespace(to_Parse);
+    
+    int c = to_Parse.peek();
+    if ((c == '-') || isdigit(c))
+        return parse_num(to_Parse);
+    else if (c == '('){
+        consume_character(to_Parse, '(');
+        Expr* e = parse_expr(to_Parse);
+        skip_whitespace(to_Parse);
+        c = to_Parse.get();
+        if (c != ')')
+            throw std::runtime_error("One or more closing parentheses are missing.");
+        return e;
+    }
+    else if (isalpha(c)){
+        return parse_var(to_Parse);
+    }
+    else if (c == '_'){
+        return parse_let(to_Parse);
+    }
+    else{
+        consume_character(to_Parse, c);
+        throw std::runtime_error("invalid input");
+    }
+}
+
+TEST_CASE("parse_multiccand"){
+    
 }
 
 /*Num Implementation*/
@@ -60,6 +308,7 @@ void Num::print(std::ostream& out){
     out << this->val;
 }
 
+/*Depricated*/
 //void Num::pretty_print_at(std::ostream& out, print_mode_t mode, int num){
 //    print(out);
 //}
@@ -101,7 +350,7 @@ TEST_CASE("Num"){
             one->print(rep_cout);
             CHECK(rep_cout.str() == "1");
         }
-    
+    /*Depricated*/
     //Checking pretty_print()
 //        {
 //            std::stringstream rep_cout ("");
@@ -146,6 +395,8 @@ void Add::print(std::ostream& out){
     out << ")";
 }
 
+
+/*Depricated*/
 //void Add::pretty_print_at(std::ostream& out, print_mode_t mode, int num){
 //    if(mode == print_group_none){
 //        this->lhs->pretty_print_at(out, print_group_add, 0);
@@ -220,24 +471,25 @@ TEST_CASE("Add"){
             CHECK((new Add(new Var("x"), new Num(7)))->subst("mismatch", new Var("y"))->equals(new Add(new Var("x"), new Num(7))));
     
     //Checking print()
-//        //No nesting
-//            {
-//                std::stringstream rep_cout ("");
-//                (new Add(new Num(1), new Var("x")))->print(rep_cout);
-//                CHECK(rep_cout.str() == "(1+x)");
-//            }
-//        //Nested right
-//            {
-//                std::stringstream rep_cout("");
-//                (new Add(new Num(3),new Add(new Num(1), new Var("x"))))->print(rep_cout);
-//                CHECK(rep_cout.str() == "(3+(1+x))");
-//            }
-//        //Nested left
-//            {
-//                std::stringstream rep_cout("");
-//                (new Add(new Add(new Num(1), new Var("x")), new Num(3)))->print(rep_cout);
-//                CHECK(rep_cout.str() == "((1+x)+3)");
-//            }
+        //No nesting
+            {
+                std::stringstream rep_cout ("");
+                (new Add(new Num(1), new Var("x")))->print(rep_cout);
+                CHECK(rep_cout.str() == "(1+x)");
+            }
+        //Nested right
+            {
+                std::stringstream rep_cout("");
+                (new Add(new Num(3),new Add(new Num(1), new Var("x"))))->print(rep_cout);
+                CHECK(rep_cout.str() == "(3+(1+x))");
+            }
+        //Nested left
+            {
+                std::stringstream rep_cout("");
+                (new Add(new Add(new Num(1), new Var("x")), new Num(3)))->print(rep_cout);
+                CHECK(rep_cout.str() == "((1+x)+3)");
+            }
+    /*Depricated*/
 //    //Checking pretty_print()
 //        //No nesting
 //            {
@@ -307,6 +559,7 @@ void Mult::print(std::ostream& out){
     out << ")";
 }
 
+/*Depricated*/
 //void Mult::pretty_print_at(std::ostream& out, print_mode_t mode, int num){
 //    if(mode == print_group_add_or_mult){
 //        out << "(";
@@ -399,7 +652,8 @@ TEST_CASE("Mul"){
                 CHECK(rep_cout.str() == "((1*x)*3)");
             }
     
-    //Checking pretty_print()
+    /*Depricated*/
+//    //Checking pretty_print()
 //        //No nesting
 //            {
 //                std::stringstream rep_cout ("");
@@ -472,6 +726,8 @@ void Var::print(std::ostream& out){
     out << this->var;
 }
 
+
+/*Depricated*/
 //void Var::pretty_print_at(std::ostream& out, print_mode_t mode, int num){
 //    print(out);
 //}
@@ -516,6 +772,8 @@ TEST_CASE("Var"){
             (new Var("x"))->print(rep_cout);
             CHECK(rep_cout.str() == "x");
         }
+    
+    /*Depricated*/
     //Checking pretty_print()
 //        {
 //            std::stringstream rep_cout ("");
@@ -568,6 +826,7 @@ void _let::print(std::ostream& out){
     out << ")";
 }
 
+/*Depricated*/
 //void _let::pretty_print_at(std::ostream& out, print_mode_t mode, int num){
 //    out << "_let " << this->lhs_name << " = ";
 //    this->rhs->pretty_print_at(out, print_group_none, 0);
@@ -585,9 +844,9 @@ TEST_CASE("_let"){
     _let* invalidExpression_rhs_free_var = new _let("y", new Var("y"), new Add(new Num(3), new Var("y")));
     _let* noVariablePresent =new _let("x", new Num(7), new Mult(new Num(5), new Num(7)));
     
-    //pretty print at test variables
+    //print variables
     _let* print_test = new _let("x", new Num(5), new Add(new _let("y", new Num(3), new Add(new Var("y"), new Num(2))), new Var("x")));
-    Add* exampleTests = new Add(new Mult(new Num(5), new _let("x", new Num(5), new Var("x"))), new Num(1));
+    
     //Checking _let Equality
     CHECK(firstExpression->equals(new _let("x", new Num(7), new Mult(new Var("x"), new Num(7)))));
 
@@ -683,8 +942,10 @@ TEST_CASE("_let"){
     //Checking print()
     CHECK(firstExpression->to_string() == "(_let x=7 _in (x*7))");
     CHECK(print_test->to_string() == "(_let x=5 _in ((_let y=3 _in (y+2))+x))");
-          
+    
+    /*Depricated*/
 //    //Checking pretty_print()
+//    Add* exampleTests = new Add(new Mult(new Num(5), new _let("x", new Num(5), new Var("x"))), new Num(1));
 //    {
 //        std::stringstream rep_cout ("");
 //        print_test->pretty_print(rep_cout);

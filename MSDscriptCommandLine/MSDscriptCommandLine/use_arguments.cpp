@@ -8,6 +8,7 @@
 #define CATCH_CONFIG_RUNNER
 #include "catch.h"
 #include "use_arguments.hpp"
+#include "expr.hpp"
 
 /*
  This function takes commands:
@@ -20,22 +21,50 @@ void use_arguments(const int arraySize, const char* array[]){
         std::cout << "No arguments found.\n";
         exit(2);
     }
-    bool testSeen = false;
-    for (int i = 1; i < arraySize; i++){
-        if ((std::string)array[i] == "--help"){
-            std::cout << "This function takes commands:\n";
-            std::cout << "--help => Displays this message.\n";
-            std::cout << "--test => Prints Test Passed to the screen. Can only be utilized once.\n";
-            std::cout << "Any other commands will result in an error.\n";
-            exit(0);
-        }
-        else if ((std::string)array[i] == "--test" && !testSeen){
-            testSeen = true;
-            if(Catch::Session().run(1, array) != 0)
-                exit(1);
-            continue;
-        }
-        std::cerr << "Invalid command\n";
-        exit(1);
+    if ((std::string)array[1] == "--help"){
+        std::cout << "This program takes the following commands:\n";
+        std::cout << "--help => Displays this message.\n";
+        std::cout << "--test => Runs all tests in the program\n";
+        std::cout << "--interp => Takes the given argument, interprets it, and exits with 0 if successful.\n";
+        std::cout << "--print => Takes the given argument, prints it, and exits with 0 if successful.\n";
+        std::cout << "Any additional flags are ignored.\n";
+        std::cout << "Arguments that are passed and not specified above result in an \"Invalid command\" error.\n";
+        exit(0);
     }
+    else if ((std::string)array[1] == "--test"){
+        if(Catch::Session().run(1, array) != 0)
+            exit(1);
+        exit(0);
+    }
+    else if ((std::string)array[1] == "--interp"){
+        while (true) {
+            Expr* e = parse_multicand(std::cin);
+            
+            int solution = e->interp();
+            std::cout << solution <<"\n";
+    
+            skip_whitespace(std::cin);
+            if (std::cin.eof()) {
+                break;
+            }
+        }
+        exit(0);
+    }
+    else if ((std::string)array[1] == "--print"){
+        while (true) {
+            Expr* e = parse_multicand(std::cin);
+            
+            e->print(std::cout);
+            std::cout << "\n";
+    
+            skip_whitespace(std::cin);
+            if (std::cin.eof()) {
+                break;
+            }
+        }
+        exit(0);
+    }
+    std::cerr << "Invalid command\n";
+    exit(1);
 }
+
