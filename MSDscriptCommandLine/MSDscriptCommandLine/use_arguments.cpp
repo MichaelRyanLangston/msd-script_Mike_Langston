@@ -9,6 +9,7 @@
 #include "catch.h"
 #include "use_arguments.hpp"
 #include "expr.hpp"
+#include "exec.h"
 
 /*
  This function takes commands:
@@ -34,15 +35,19 @@ void use_arguments(const int arraySize, const char* array[]){
     else if ((std::string)array[1] == "--test"){
         if(Catch::Session().run(1, array) != 0)
             exit(1);
+        while (true) {
+            //genrate a test string
+        }
+        
         exit(0);
     }
     else if ((std::string)array[1] == "--interp"){
         while (true) {
-            Expr* e = parse_multicand(std::cin);
+            Expr* e = parse_expr(std::cin);
             
             int solution = e->interp();
             std::cout << solution <<"\n";
-    
+            std::cout << "\n";
             skip_whitespace(std::cin);
             if (std::cin.eof()) {
                 break;
@@ -52,8 +57,8 @@ void use_arguments(const int arraySize, const char* array[]){
     }
     else if ((std::string)array[1] == "--print"){
         while (true) {
-            Expr* e = parse_multicand(std::cin);
-            
+            Expr* e = parse_expr(std::cin);
+            std::cout << "\n";
             e->print(std::cout);
             std::cout << "\n";
     

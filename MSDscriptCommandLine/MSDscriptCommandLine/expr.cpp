@@ -201,8 +201,14 @@ Expr* parse_let(std::istream &to_Parse){
 }
 
 TEST_CASE("parse_let"){
+    //No spaces
     {
-        std::stringstream testing ("_let x=5 _in  x + 3");
+        std::stringstream testing ("_letx=5_inx+3");
+        CHECK(parse_let(testing)->equals(new _let("x", new Num(5), new Add(new Var("x"), new Num (3)))));
+    }
+    //some spaces
+    {
+        std::stringstream testing ("_let  x  =   5   _in  x   +  3");
         CHECK(parse_let(testing)->equals(new _let("x", new Num(5), new Add(new Var("x"), new Num (3)))));
     }
 }
@@ -243,7 +249,6 @@ Expr* parse_addend(std::istream &to_Parse){
 }
 
 TEST_CASE("parse addend"){
-    
 }
 
 Expr* parse_multicand(std::istream &to_Parse){
@@ -274,7 +279,6 @@ Expr* parse_multicand(std::istream &to_Parse){
 }
 
 TEST_CASE("parse_multiccand"){
-    
 }
 
 /*Num Implementation*/
