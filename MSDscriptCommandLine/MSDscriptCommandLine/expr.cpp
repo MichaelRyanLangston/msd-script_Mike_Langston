@@ -108,6 +108,9 @@ Expr* parse_num(std::istream &to_Parse){
         is_Negative = true;
         consume_character(to_Parse, '-');
     }
+    if (!(isdigit(to_Parse.peek()))) {
+        throw std::runtime_error("parse_num: invalid character...");
+    }
     
     while (true) {
         int input_Charater = to_Parse.peek();
@@ -137,13 +140,18 @@ TEST_CASE("parse_num"){
     }
     
     {
+        std::stringstream testing ("--33");
+        CHECK_THROWS_WITH(parse_num(testing), "parse_num: invalid character...");
+    }
+    
+    {
         std::stringstream testing ("-");
-        CHECK(parse_num(testing)->equals(new Num(0)));
+        CHECK_THROWS_WITH(parse_num(testing), "parse_num: invalid character...");
     }
     
     {
         std::stringstream testing ("g");
-        CHECK(parse_num(testing)->equals(new Num(0)));
+        CHECK_THROWS_WITH(parse_num(testing), "parse_num: invalid character...");
     }
 }
 
