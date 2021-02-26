@@ -13,6 +13,9 @@
 #include <iostream>
 
 
+//Prototypes
+class Val;
+
 
 //Expr acts as a Java Interface, so it is meant to be implemented by other classes or rather sub-classes since C++ doesn't have a notion of an interface.
 class Expr {
@@ -20,7 +23,7 @@ public:
     /* Override Methods */
     // = 0 syntax means that each subclass must override it.
     virtual bool equals(Expr *e) = 0;
-    virtual int interp() = 0;
+    virtual Val* interp() = 0;
     virtual bool has_variable() = 0;
     virtual Expr* subst(std::string s, Expr *e) = 0;
     virtual void print(std::ostream& out) = 0;
@@ -41,7 +44,7 @@ public:
     //    print_group_none,
     //    print_group_add,
     //    print_group_add_or_mult,
-    //} print_mode_t;
+    //} print*_mode_t;
 };
 
 //Parsing Helper Functions
@@ -57,83 +60,83 @@ Expr* parse_multicand(std::istream &to_Parse);
 Expr* parse_addend(std::istream &to_Parse);
 Expr* parse_expr(std::istream & to_Parse);
 
-class Num : public Expr {
+class NumExpr : public Expr {
 public:
     //Member Variables
-    int val;
+    Val* val;
     
     //Default Constructor
-    Num(int val);
+    NumExpr(Val* val);
     
     //Methods
     bool equals(Expr *e);
-    int interp();
+    Val* interp();
     bool has_variable();
     Expr* subst(std::string s, Expr *e);
     void print(std::ostream& out);
 };
 
-class Add : public Expr {
-public:
-    //Member Variables
-    Expr *lhs;
-    Expr *rhs;
-    
-    //Default Constructor
-    Add(Expr *lhs, Expr *rhs);
-    
-    //Methods
-    bool equals(Expr *e);
-    int interp();
-    bool has_variable();
-    Expr* subst(std::string s, Expr *e);
-    void print(std::ostream& out);
-};
-
-class Mult : public Expr {
+class AddExpr : public Expr {
 public:
     //Member Variables
     Expr *lhs;
     Expr *rhs;
     
     //Default Constructor
-    Mult(Expr *lhs, Expr *rhs);
+    AddExpr(Expr *lhs, Expr *rhs);
     
     //Methods
     bool equals(Expr *e);
-    int interp();
+    Val* interp();
     bool has_variable();
     Expr* subst(std::string s, Expr *e);
     void print(std::ostream& out);
 };
 
-class Var : public Expr {
+class MultExpr : public Expr {
+public:
+    //Member Variables
+    Expr *lhs;
+    Expr *rhs;
+    
+    //Default Constructor
+    MultExpr(Expr *lhs, Expr *rhs);
+    
+    //Methods
+    bool equals(Expr *e);
+    Val* interp();
+    bool has_variable();
+    Expr* subst(std::string s, Expr *e);
+    void print(std::ostream& out);
+};
+
+class VarExpr : public Expr {
 public:
     std::string var;
     
     //Default Constructor
-    Var(std::string val);
+    VarExpr(std::string val);
     
     //Methods
     bool equals(Expr *e);
-    int interp();
+    Val* interp();
     bool has_variable();
     Expr* subst(std::string s, Expr *e);
     void print(std::ostream& out);
 };
 
-class _let : public Expr {
+class LetExpr : public Expr {
 public:
     std::string lhs_name;
     Expr *rhs;
     Expr *body;
     
     //Default Constructor
-    _let(std::string lhs_name, Expr *rhs,Expr *body);
+    LetExpr(std::string lhs_name, Expr *rhs,Expr *body);
     
     //Methods
     bool equals(Expr *e);
-    int interp();
+    Val* interp();
     bool has_variable();
     Expr* subst(std::string s, Expr *e);
     void print(std::ostream& out);

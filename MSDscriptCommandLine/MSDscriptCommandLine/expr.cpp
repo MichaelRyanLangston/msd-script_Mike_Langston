@@ -5,14 +5,12 @@
 //  Created by Michael Langston on 1/24/21.
 //
 
-#include "expr.hpp"
-#include "catch.h"
 #include <stdexcept>
-
-//stringstream libaray
 #include <sstream>
 #include <iostream>
-
+#include "expr.hpp"
+#include "catch.h"
+#include "val.hpp"
 
 
 /*Exper Implemntation Interface*/
@@ -30,7 +28,7 @@ std::string Expr::to_string(){
 
 //Method Tests
 TEST_CASE("Exper"){
-    CHECK((new Mult(new Add(new Num(0), new Var("y")), new Num(1)))->to_string() == "((0+y)*1)");
+    CHECK((new MultExpr(new AddExpr(new NumExpr(new NumVal(0)), new VarExpr("y")), new NumExpr(new NumVal(0))))->to_string() == "((0+y)*1)");
 }
 
 //Helper Functions for Parsing Functions
@@ -125,18 +123,18 @@ Expr* parse_num(std::istream &to_Parse){
     if(is_Negative)
         to_Return = -to_Return;
     
-    return new Num(to_Return);
+    return new NumExpr(new NumVal(to_Return));
 }
 
 TEST_CASE("parse_num"){
     {
         std::stringstream testing ("33");
-        CHECK(parse_num(testing)->equals(new Num(33)));
+        CHECK(parse_num(testing)->equals(new NumExpr(new NumVal(33))));
     }
     
     {
         std::stringstream testing ("-33");
-        CHECK(parse_num(testing)->equals(new Num(-33)));
+        CHECK(parse_num(testing)->equals(new NumExpr(new NumVal(33))));
     }
     
     {
@@ -167,28 +165,28 @@ Expr* parse_var(std::istream &to_Parse){
         else
             break;
     }
-    return new Var(to_Return);
+    return new VarExpr(to_Return);
 }
 
 TEST_CASE("parse_var"){
     {
         std::stringstream testing ("g");
-        CHECK(parse_var(testing)->equals(new Var("g")));
+        CHECK(parse_var(testing)->equals(new VarExpr("g")));
     }
     
     {
         std::stringstream testing ("guess0");
-        CHECK(parse_var(testing)->equals(new Var("guess")));
+        CHECK(parse_var(testing)->equals(new VarExpr("guess")));
     }
     
     {
         std::stringstream testing ("gu0ess");
-        CHECK(parse_var(testing)->equals(new Var("gu")));
+        CHECK(parse_var(testing)->equals(new VarExpr("gu")));
     }
     
     {
         std::stringstream testing ("0guess");
-        CHECK(parse_var(testing)->equals(new Var("")));
+        CHECK(parse_var(testing)->equals(new VarExpr("")));
     }
 }
 
@@ -205,19 +203,19 @@ Expr* parse_let(std::istream &to_Parse){
     skip_whitespace(to_Parse);
     Expr* body = parse_expr(to_Parse);
     
-    return new _let(lhs_name, rhs, body);
+    return new LetExpr(lhs_name, rhs, body);
 }
 
 TEST_CASE("parse_let"){
     //No spaces
     {
         std::stringstream testing ("_letx=5_inx+3");
-        CHECK(parse_let(testing)->equals(new _let("x", new Num(5), new Add(new Var("x"), new Num (3)))));
+        CHECK(parse_let(testing)->equals(new LetExpr("x", new NumExpr(new NumVal(5)), new AddExpr(new VarExpr("x"), new NumExpr(new NumVal(3))))));
     }
     //some spaces
     {
         std::stringstream testing ("_let  x  =   5   _in  x   +  3");
-        CHECK(parse_let(testing)->equals(new _let("x", new Num(5), new Add(new Var("x"), new Num (3)))));
+        CHECK(parse_let(testing)->equals(new LetExpr("x", new NumExpr(new NumVal(5)), new AddExpr(new VarExpr("x"), new NumExpr(new NumVal(3))))));
     }
 }
 
@@ -232,7 +230,7 @@ Expr* parse_expr(std::istream & to_Parse){
     if (c == '+') {
         consume_character(to_Parse, '+');
         Expr* rhs = parse_expr(to_Parse);
-        return new Add(e, rhs);
+        return new AddExpr(e, rhs);
     }
     else
         return e;
@@ -250,7 +248,7 @@ Expr* parse_addend(std::istream &to_Parse){
     if (c == '*') {
         consume_character(to_Parse, '*');
         Expr* rhs = parse_addend(to_Parse);
-        return new Mult(e, rhs);
+        return new MultExpr(e, rhs);
     }
     else
         return e;
@@ -291,33 +289,33 @@ TEST_CASE("parse_multiccand"){
 
 /*Num Implementation*/
 //Default Constructor
-Num::Num(int val){
+NumExpr::NumExpr(Val* val){
     this->val = val;
 }
 
 //Methods
-bool Num::equals(Expr *e){
-    Num *n = dynamic_cast<Num*>(e);
-    if (n == NULL)
+bool NumExpr::equals(Expr *e){
+    NumExpr* ne = dynamic_cast<NumExpr*>(e);
+    if (ne == NULL)
         return false;
     else
-        return this->val == n->val;
+        return this->val->equals(ne->val);
 }
 
-int Num::interp(){
+Val* NumExpr::interp(){
     return this->val;
 }
 
-bool Num::has_variable(){
+bool NumExpr::has_variable(){
     return false;
 }
 
-Expr* Num::subst(std::string s, Expr *e){
+Expr* NumExpr::subst(std::string s, Expr *e){
     return this;
 }
 
-void Num::print(std::ostream& out){
-    out << this->val;
+void NumExpr::print(std::ostream& out){
+    out << this->val->getVal();
 }
 
 /*Depricated*/
@@ -329,13 +327,13 @@ void Num::print(std::ostream& out){
 TEST_CASE("Num"){
     
     //Test Variables
-        Num* one = new Num(1);
-        Num* two = new Num(2);
-        Mult* mult_one_two = new Mult(one,two);
-        Add* add_one_two = new Add(one,two);
+        NumExpr* one = new NumExpr(new NumVal(1));
+        NumExpr* two = new NumExpr(new NumVal(2));
+        MultExpr* mult_one_two = new MultExpr(one,two);
+        AddExpr* add_one_two = new AddExpr(one,two);
 
     //Checking Num Equality
-        CHECK(one->equals(new Num(1)));
+        CHECK(one->equals(new NumExpr(new NumVal(1))));
 
     //Checking Num Inequality
         CHECK(!(one->equals(two)));
@@ -345,16 +343,16 @@ TEST_CASE("Num"){
         CHECK(!(one->equals(add_one_two)));
 
     //Checking interp()
-        CHECK(one->interp() == 1);
-        CHECK(two->interp() == 2);
+        CHECK(one->interp()->equals(new NumVal(1)));
+        CHECK(two->interp()->equals(new NumVal(2)));
 
     //Checking has_variable()
         CHECK(one->has_variable() == false);
         CHECK(two->has_variable() == false);
 
     //Checking subs()
-        CHECK(one->subst("s", two)->equals(new Num(1)));
-        CHECK(two->subst("s", one)->equals(new Num(2)));
+        CHECK(one->subst("s", two)->equals(new NumExpr(new NumVal(1))));
+        CHECK(two->subst("s", one)->equals(new NumExpr(new NumVal(1))));
     
     //Checking print()
         {
@@ -373,33 +371,33 @@ TEST_CASE("Num"){
 
 /*Add implementations*/
 //Default Constructor
-Add::Add(Expr *lhs, Expr *rhs) {
+AddExpr::AddExpr(Expr *lhs, Expr *rhs) {
     this->lhs = lhs;
     this->rhs = rhs;
 }
 
 //Methods
-bool Add::equals(Expr *e){
-    Add *a = dynamic_cast<Add*>(e);
-    if (a == NULL)
+bool AddExpr::equals(Expr *e){
+    AddExpr* ae = dynamic_cast<AddExpr*>(e);
+    if (ae == NULL)
         return false;
     else
-        return (this->lhs->equals(a->lhs) && this->rhs->equals(a->rhs));
+        return (this->lhs->equals(ae->lhs) && this->rhs->equals(ae->rhs));
 }
 
-int Add::interp(){
-    return this->lhs->interp() + this->rhs->interp();
+Val* AddExpr::interp(){
+    return new NumVal(this->lhs->interp()->getVal() + this->rhs->interp()->getVal());
 }
 
-bool Add::has_variable(){
+bool AddExpr::has_variable(){
     return this->lhs->has_variable() || this->rhs->has_variable();
 }
 
-Expr* Add::subst(std::string s, Expr *e){
-    return new Add(this->lhs->subst(s, e), this->rhs->subst(s, e));
+Expr* AddExpr::subst(std::string s, Expr *e){
+    return new AddExpr(this->lhs->subst(s, e), this->rhs->subst(s, e));
 }
 
-void Add::print(std::ostream& out){
+void AddExpr::print(std::ostream& out){
     out << "(";
     this->lhs->print(out);
     out << "+";
@@ -428,25 +426,25 @@ void Add::print(std::ostream& out){
 TEST_CASE("Add"){
     
     //Test Varialbels
-        Num* one = new Num(1);
-        Num* two = new Num(2);
+        NumExpr* one = new NumExpr(new NumVal(1));
+        NumExpr* two = new NumExpr(new NumVal(2));
         
-        Add* one_two = new Add(one,two);
-        Add* two_one = new Add(two,one);
-        Add* add_two_add_exper = new Add(one_two, two_one);
-        Add* vars = new Add(new Var("x"), new Num(3));
-        Add* vars2 = new Add(new Num(8), new Var("y"));
-        Add* vars3 = new Add(one_two, new Add(new Var("z"), new Num(7)));
-        Add* vars4 = new Add(new Add(new Var("a"), new Num(3)), two_one);
+        AddExpr* one_two = new AddExpr(one,two);
+        AddExpr* two_one = new AddExpr(two,one);
+        AddExpr* add_two_add_exper = new AddExpr(one_two, two_one);
+        AddExpr* vars = new AddExpr(new VarExpr("x"), new NumExpr(new NumVal(3)));
+        AddExpr* vars2 = new AddExpr(new NumExpr(new NumVal(8)), new VarExpr("y"));
+        AddExpr* vars3 = new AddExpr(one_two, new AddExpr(new VarExpr("z"), new NumExpr(new NumVal(7))));
+        AddExpr* vars4 = new AddExpr(new AddExpr(new VarExpr("a"), new NumExpr(new NumVal(3))), two_one);
         
         
-        Mult* mult_one_two = new Mult(one,two);
-        Mult* mult_two_one = new Mult(two,one);
-        Add* add_two_mult_exper = new Add(mult_one_two, mult_two_one);
+        MultExpr* mult_one_two = new MultExpr(one,two);
+        MultExpr* mult_two_one = new MultExpr(two,one);
+        AddExpr* add_two_mult_exper = new AddExpr(mult_one_two, mult_two_one);
     
     
     //Checking Add Equality
-        CHECK(one_two->equals(new Add(new Num(1), new Num(2))));
+        CHECK(one_two->equals(new AddExpr(new NumExpr(new NumVal(1)), new NumExpr(new NumVal(2)))));
     
     //Checking Add Inequality
         CHECK(!(one_two->equals(two_one)));
@@ -456,9 +454,9 @@ TEST_CASE("Add"){
         CHECK(!(one_two->equals(mult_one_two)));
     
     //Checking interp()
-        CHECK(one_two->interp() == 3);
-        CHECK(add_two_add_exper->interp() == 6);
-        CHECK(add_two_mult_exper->interp() == 4);
+        CHECK(one_two->interp()->equals(new NumVal(3)));
+        CHECK(add_two_add_exper->interp()->equals(new NumVal(6)));
+        CHECK(add_two_mult_exper->interp()->equals(new NumVal(4)));
         CHECK_THROWS_WITH(vars->interp(), "The variable has no value assigned to it yet.");
     
     //Checking has_variable()
@@ -471,34 +469,34 @@ TEST_CASE("Add"){
     
     //Checking subst()
         //substitution with each avaiable Exper object.
-            CHECK((new Add(new Var("x"), new Num(7)))->subst("x", new Var("y"))->equals(new Add(new Var("y"), new Num(7))));
-            CHECK((new Add(new Var("x"), new Num(7)))->subst("x", new Num(3))->equals(new Add(new Num(3), new Num(7))));
-            CHECK((new Add(new Var("x"), new Num(7)))->subst("x", new Add(new Var("x"), new Num(8)))->equals(new Add(new Add(new Var("x"), new Num(8)), new Num(7))));
-            CHECK((new Add(new Var("x"), new Num(7)))->subst("x", new Mult(new Var("x"), new Num(8)))->equals(new Add(new Mult(new Var("x"), new Num(8)), new Num(7))));
+            CHECK((new AddExpr(new VarExpr("x"), new NumExpr(new NumVal(7))))->subst("x", new VarExpr("y"))->equals(new AddExpr(new VarExpr("y"), new NumExpr(new NumVal(7)))));
+            CHECK((new AddExpr(new VarExpr("x"), new NumExpr(new NumVal(7))))->subst("x", new NumExpr(new NumVal(3)))->equals(new AddExpr(new NumExpr(new NumVal(3)), new NumExpr(new NumVal(7)))));
+            CHECK((new AddExpr(new VarExpr("x"), new NumExpr(new NumVal(7))))->subst("x", new AddExpr(new VarExpr("x"), new NumExpr(new NumVal(8))))->equals(new AddExpr(new AddExpr(new VarExpr("x"), new NumExpr(new NumVal(8))), new NumExpr(new NumVal(7)))));
+            CHECK((new AddExpr(new VarExpr("x"), new NumExpr(new NumVal(7))))->subst("x", new MultExpr(new VarExpr("x"), new NumExpr(new NumVal(8))))->equals(new AddExpr(new MultExpr(new VarExpr("x"), new NumExpr(new NumVal(8))), new NumExpr(new NumVal(7)))));
         //nested substitution
-            CHECK((new Add(new Num(3), new Add(new Num(6), new Var("y"))))->subst("y", new Var("x"))->equals(new Add(new Num(3), new Add(new Num(6), new Var("x")))));
+            CHECK((new AddExpr(new NumExpr(new NumVal(3)), new AddExpr(new NumExpr(new NumVal(6)), new VarExpr("y"))))->subst("y", new VarExpr("x"))->equals(new AddExpr(new NumExpr(new NumVal(3)), new AddExpr(new NumExpr(new NumVal(6)), new VarExpr("x")))));
         //no Var object present
-            CHECK((new Add(new Num(8), new Num(7)))->subst("x", new Var("y"))->equals(new Add(new Num(8), new Num(7))));
+            CHECK((new AddExpr(new NumExpr(new NumVal(8)), new NumExpr(new NumVal(7))))->subst("x", new VarExpr("y"))->equals(new AddExpr(new NumExpr(new NumVal(8)), new NumExpr(new NumVal(7)))));
         //no matching string
-            CHECK((new Add(new Var("x"), new Num(7)))->subst("mismatch", new Var("y"))->equals(new Add(new Var("x"), new Num(7))));
+            CHECK((new AddExpr(new VarExpr("x"), new NumExpr(new NumVal(7))))->subst("mismatch", new VarExpr("y"))->equals(new AddExpr(new VarExpr("x"), new NumExpr(new NumVal(7)))));
     
     //Checking print()
         //No nesting
             {
                 std::stringstream rep_cout ("");
-                (new Add(new Num(1), new Var("x")))->print(rep_cout);
+                (new AddExpr(new NumExpr(new NumVal(1)), new VarExpr("x")))->print(rep_cout);
                 CHECK(rep_cout.str() == "(1+x)");
             }
         //Nested right
             {
                 std::stringstream rep_cout("");
-                (new Add(new Num(3),new Add(new Num(1), new Var("x"))))->print(rep_cout);
+                (new AddExpr(new NumExpr(new NumVal(3)),new AddExpr(new NumExpr(new NumVal(1)), new VarExpr("x"))))->print(rep_cout);
                 CHECK(rep_cout.str() == "(3+(1+x))");
             }
         //Nested left
             {
                 std::stringstream rep_cout("");
-                (new Add(new Add(new Num(1), new Var("x")), new Num(3)))->print(rep_cout);
+                (new AddExpr(new AddExpr(new NumExpr(new NumVal(1)), new VarExpr("x")), new NumExpr(new NumVal(3))))->print(rep_cout);
                 CHECK(rep_cout.str() == "((1+x)+3)");
             }
     /*Depricated*/
@@ -506,64 +504,65 @@ TEST_CASE("Add"){
 //        //No nesting
 //            {
 //                std::stringstream rep_cout ("");
-//                (new Add(new Num(1), new Var("x")))->pretty_print(rep_cout);
+//                (new Add(new NumExpr(1), new VarExpr("x")))->pretty_print(rep_cout);
 //                CHECK(rep_cout.str() == "1 + x");
 //            }
 //        //Add w/ Nested right Add
 //            {
 //                std::stringstream rep_cout("");
-//                (new Add(new Num(3),new Add(new Num(1), new Var("x"))))->pretty_print(rep_cout);
+//                (new Add(new NumExpr(3),new Add(new NumExpr(1), new VarExpr("x"))))->pretty_print(rep_cout);
 //                CHECK(rep_cout.str() == "3 + 1 + x");
 //            }
 //        //Add w/ Nested left Add
 //            {
 //                std::stringstream rep_cout("");
-//                (new Add(new Add(new Num(1), new Var("x")), new Num(3)))->pretty_print(rep_cout);
+//                (new Add(new Add(new NumExpr(1), new VarExpr("x")), new NumExpr(3)))->pretty_print(rep_cout);
 //                CHECK(rep_cout.str() == "(1 + x) + 3");
 //            }
 //        //Add w/ Nested right Mult
 //            {
 //                std::stringstream rep_cout("");
-//                (new Add(new Num(3), new Mult(new Num(1), new Var("x"))))->pretty_print(rep_cout);
+//                (new Add(new NumExpr(3), new MultExpr(new NumExpr(1), new VarExpr("x"))))->pretty_print(rep_cout);
 //                CHECK(rep_cout.str() == "3 + 1 * x");
 //            }
 //        //Add w/ Nested left Mult
 //            {
 //                std::stringstream rep_cout("");
-//                (new Add(new Mult(new Num(1), new Var("x")), new Num(3)))->pretty_print(rep_cout);
+//                (new Add(new MultExpr(new NumExpr(1), new VarExpr("x")), new NumExpr(3)))->pretty_print(rep_cout);
 //                CHECK(rep_cout.str() == "1 * x + 3");
 //            }
 }
 
 /*Mult implementations*/
 //Default Constructor
-Mult::Mult(Expr *lhs, Expr *rhs) {
+MultExpr::MultExpr(Expr *lhs, Expr *rhs) {
     this->lhs = lhs;
     this->rhs = rhs;
 }
 
 //Methods
-bool Mult::equals(Expr *e){
-    Mult *m = dynamic_cast<Mult*>(e);
+bool MultExpr::equals(Expr *e){
+    MultExpr *m = dynamic_cast<MultExpr*>(e);
     if (m == NULL)
         return false;
     else
         return (this->lhs->equals(m->lhs) && this->rhs->equals(m->rhs));
 }
 
-int Mult::interp(){
-    return this->lhs->interp() * this->rhs->interp();
+Val* MultExpr::interp(){
+    
+    return new NumVal(this->lhs->interp()->getVal() * this->rhs->interp()->getVal());
 }
 
-bool Mult::has_variable(){
+bool MultExpr::has_variable(){
     return this->lhs->has_variable() || this->rhs->has_variable();
 }
 
-Expr* Mult::subst(std::string s, Expr *e){
-    return new Mult(this->lhs->subst(s, e), this->rhs->subst(s, e));
+Expr* MultExpr::subst(std::string s, Expr *e){
+    return new MultExpr(this->lhs->subst(s, e), this->rhs->subst(s, e));
 }
 
-void Mult::print(std::ostream& out){
+void MultExpr::print(std::ostream& out){
     out << "(";
     this->lhs->print(out);
     out << "*";
@@ -572,7 +571,7 @@ void Mult::print(std::ostream& out){
 }
 
 /*Depricated*/
-//void Mult::pretty_print_at(std::ostream& out, print_mode_t mode, int num){
+//void MultExpr::pretty_print_at(std::ostream& out, print_mode_t mode, int num){
 //    if(mode == print_group_add_or_mult){
 //        out << "(";
 //        this->lhs->pretty_print_at(out, print_group_none, 0);
@@ -591,24 +590,24 @@ void Mult::print(std::ostream& out){
 TEST_CASE("Mul"){
     
     //Test Varialbels
-        Num* one = new Num(1);
-        Num* two = new Num(2);
+        NumExpr* one = new NumExpr(new NumVal(1));
+        NumExpr* two = new NumExpr(new NumVal(2));
 
-        Add* one_two = new Add(one,two);
-        Add* two_one = new Add(two,one);
+        AddExpr* one_two = new AddExpr(one,two);
+        AddExpr* two_one = new AddExpr(two,one);
 
-        Mult* mult_one_two = new Mult(one,two);
-        Mult* mult_two_one = new Mult(two,one);
-        Mult* mult_two_mult_exper = new Mult(mult_one_two, mult_two_one);
-        Mult* mult_two_add_exper = new Mult(one_two, two_one);
-        Mult* vars = new Mult(new Var("x"), new Num(3));
-        Mult* vars2 = new Mult(new Num(8), new Var("y"));
-        Mult* vars3 = new Mult(one_two, new Mult(new Var("z"), new Num(7)));
-        Mult* vars4 = new Mult(new Mult(new Var("a"), new Num(3)), two_one);
+        MultExpr* mult_one_two = new MultExpr(one,two);
+        MultExpr* mult_two_one = new MultExpr(two,one);
+        MultExpr* mult_two_mult_exper = new MultExpr(mult_one_two, mult_two_one);
+        MultExpr* mult_two_add_exper = new MultExpr(one_two, two_one);
+        MultExpr* vars = new MultExpr(new VarExpr("x"), new NumExpr(new NumVal(3)));
+        MultExpr* vars2 = new MultExpr(new NumExpr(new NumVal(8)), new VarExpr("y"));
+        MultExpr* vars3 = new MultExpr(one_two, new MultExpr(new VarExpr("z"), new NumExpr(new NumVal(7))));
+        MultExpr* vars4 = new MultExpr(new MultExpr(new VarExpr("a"), new NumExpr(new NumVal(3))), two_one);
     
     
     //Checking Mult Equality
-        CHECK(mult_one_two->equals(new Mult(new Num(1), new Num(2))));
+        CHECK(mult_one_two->equals(new MultExpr(new NumExpr(new NumVal(1)), new NumExpr(new NumVal(2)))));
     
     //Checking Mult Inequality
         CHECK(!(mult_one_two->equals(mult_two_one)));
@@ -618,9 +617,9 @@ TEST_CASE("Mul"){
         CHECK(!(mult_one_two->equals(one)));
     
     //Checking interp()
-        CHECK(mult_one_two->interp() == 2);
-        CHECK(mult_two_add_exper->interp() == 9);
-        CHECK(mult_two_mult_exper->interp() == 4);
+        CHECK(mult_one_two->interp()->equals(new NumVal(2)));
+        CHECK(mult_two_add_exper->interp()->equals(new NumVal(9)));
+        CHECK(mult_two_mult_exper->interp()->equals(new NumVal(4)));
         CHECK_THROWS_WITH(vars->interp(), "The variable has no value assigned to it yet.");
     
     //Checking has_varible()
@@ -633,34 +632,34 @@ TEST_CASE("Mul"){
     
     //Checking subst()
         //substitution with each avaiable Exper object.
-            CHECK((new Mult(new Var("x"), new Num(7)))->subst("x", new Var("y"))->equals(new Mult(new Var("y"), new Num(7))));
-            CHECK((new Mult(new Var("x"), new Num(7)))->subst("x", new Num(3))->equals(new Mult(new Num(3), new Num(7))));
-            CHECK((new Mult(new Var("x"), new Num(7)))->subst("x", new Add(new Var("x"), new Num(8)))->equals(new Mult(new Add(new Var("x"), new Num(8)), new Num(7))));
-            CHECK((new Mult(new Var("x"), new Num(7)))->subst("x", new Mult(new Var("x"), new Num(8)))->equals(new Mult(new Mult(new Var("x"), new Num(8)), new Num(7))));
+            CHECK((new MultExpr(new VarExpr("x"), new NumExpr(7)))->subst("x", new VarExpr("y"))->equals(new MultExpr(new VarExpr("y"), new NumExpr(7))));
+            CHECK((new MultExpr(new VarExpr("x"), new NumExpr(7)))->subst("x", new NumExpr(3))->equals(new MultExpr(new NumExpr(3), new NumExpr(7))));
+            CHECK((new MultExpr(new VarExpr("x"), new NumExpr(7)))->subst("x", new AddExpr(new VarExpr("x"), new NumExpr(8)))->equals(new MultExpr(new AddExpr(new VarExpr("x"), new NumExpr(8)), new NumExpr(7))));
+            CHECK((new MultExpr(new VarExpr("x"), new NumExpr(7)))->subst("x", new MultExpr(new VarExpr("x"), new NumExpr(8)))->equals(new MultExpr(new MultExpr(new VarExpr("x"), new NumExpr(8)), new NumExpr(7))));
         //nested substitution
-            CHECK((new Mult(new Num(3), new Mult(new Num(6), new Var("y"))))->subst("y", new Var("x"))->equals(new Mult(new Num(3), new Mult(new Num(6), new Var("x")))));
+            CHECK((new MultExpr(new NumExpr(3), new MultExpr(new NumExpr(6), new VarExpr("y"))))->subst("y", new VarExpr("x"))->equals(new MultExpr(new NumExpr(3), new MultExpr(new NumExpr(6), new VarExpr("x")))));
         //no Var object present
-            CHECK((new Mult(new Num(8), new Num(7)))->subst("x", new Var("y"))->equals(new Mult(new Num(8), new Num(7))));
+            CHECK((new MultExpr(new NumExpr(8), new NumExpr(7)))->subst("x", new VarExpr("y"))->equals(new MultExpr(new NumExpr(8), new NumExpr(7))));
         //no matching string
-            CHECK((new Mult(new Var("x"), new Num(7)))->subst("mismatch", new Var("y"))->equals(new Mult(new Var("x"), new Num(7))));
+            CHECK((new MultExpr(new VarExpr("x"), new NumExpr(7)))->subst("mismatch", new VarExpr("y"))->equals(new MultExpr(new VarExpr("x"), new NumExpr(7))));
     
     //Checking print()
         //No nesting
             {
                 std::stringstream rep_cout ("");
-                (new Mult(new Num(1), new Var("x")))->print(rep_cout);
+                (new MultExpr(new NumExpr(1), new VarExpr("x")))->print(rep_cout);
                 CHECK(rep_cout.str() == "(1*x)");
             }
         //Nested right
             {
                 std::stringstream rep_cout("");
-                (new Mult(new Num(3),new Mult(new Num(1), new Var("x"))))->print(rep_cout);
+                (new MultExpr(new NumExpr(3),new MultExpr(new NumExpr(1), new VarExpr("x"))))->print(rep_cout);
                 CHECK(rep_cout.str() == "(3*(1*x))");
             }
         //Nested left
             {
                 std::stringstream rep_cout("");
-                (new Mult(new Mult(new Num(1), new Var("x")), new Num(3)))->print(rep_cout);
+                (new MultExpr(new MultExpr(new NumExpr(1), new VarExpr("x")), new NumExpr(3)))->print(rep_cout);
                 CHECK(rep_cout.str() == "((1*x)*3)");
             }
     
@@ -669,72 +668,72 @@ TEST_CASE("Mul"){
 //        //No nesting
 //            {
 //                std::stringstream rep_cout ("");
-//                (new Mult(new Num(1), new Var("x")))->pretty_print(rep_cout);
+//                (new MultExpr(new NumExpr(1), new VarExpr("x")))->pretty_print(rep_cout);
 //                CHECK(rep_cout.str() == "1 * x");
 //            }
 //        //Mult w/ Nested right Add
 //            {
 //                std::stringstream rep_cout("");
-//                (new Mult(new Num(3),new Add(new Num(1), new Var("x"))))->pretty_print(rep_cout);
+//                (new MultExpr(new NumExprExpr(3),new Add(new NumExpr(1), new VarExpr("x"))))->pretty_print(rep_cout);
 //                CHECK(rep_cout.str() == "3 * (1 + x)");
 //            }
 //        //Mult w/ Nested left Add
 //            {
 //                std::stringstream rep_cout("");
-//                (new Mult(new Add(new Num(1), new Var("x")), new Num(3)))->pretty_print(rep_cout);
+//                (new MultExpr(new Add(new NumExpr(1), new VarExpr("x")), new NumExpr(3)))->pretty_print(rep_cout);
 //                CHECK(rep_cout.str() == "(1 + x) * 3");
 //            }
-//        //Mult w/ Nested right Mult
+//        //Mult w/ Nested right MultExpr
 //            {
 //                std::stringstream rep_cout("");
-//                (new Mult(new Num(3), new Mult(new Num(1), new Var("x"))))->pretty_print(rep_cout);
+//                (new MultExpr(new NumExpr(3), new MultExpr(new NumExpr(1), new VarExpr("x"))))->pretty_print(rep_cout);
 //                CHECK(rep_cout.str() == "3 * 1 * x");
 //            }
-//        //Mult w/ Nested left Mult
+//        //MultExpr w/ Nested left MultExpr
 //            {
 //                std::stringstream rep_cout("");
-//                (new Mult(new Mult(new Num(1), new Var("x")), new Num(3)))->pretty_print(rep_cout);
+//                (new MultExpr(new MultExpr(new NumExpr(1), new VarExpr("x")), new NumExpr(3)))->pretty_print(rep_cout);
 //                CHECK(rep_cout.str() == "(1 * x) * 3");
 //            }
-//        //Mult w/ Nested left Mult
+//        //MultExpr w/ Nested left MultExpr
 //            {
 //                std::stringstream rep_cout("");
-//                (new Mult(new Mult(new Num(1), new Var("x")), new Add(new Var("y"), new Num(5))))->pretty_print(rep_cout);
+//                (new MultExpr(new MultExpr(new NumExpr(1), new VarExpr("x")), new Add(new VarExpr("y"), new NumExpr(5))))->pretty_print(rep_cout);
 //                CHECK(rep_cout.str() == "(1 * x) * (y + 5)");
 //            }
 }
 
 /*Var implementations*/
 //Default Constructor
-Var::Var(std::string val){
+VarExpr::VarExpr(std::string val){
     this->var = val;
 }
 
 //Methods
-bool Var::equals(Expr *e){
-    Var *v = dynamic_cast<Var*>(e);
+bool VarExpr::equals(Expr *e){
+    VarExpr *v = dynamic_cast<VarExpr*>(e);
     if(v == NULL)
         return false;
     else
         return this->var == v->var;
 }
 
-int Var::interp(){
+Val* VarExpr::interp(){
     throw std::runtime_error("The variable has no value assigned to it yet.");
 }
 
-bool Var::has_variable(){
+bool VarExpr::has_variable(){
     return true;
 }
 
-Expr* Var::subst(std::string s, Expr *e){
+Expr* VarExpr::subst(std::string s, Expr *e){
     if(this->var == s)
         return e;
     else
         return this;
 }
 
-void Var::print(std::ostream& out){
+void VarExpr::print(std::ostream& out){
     out << this->var;
 }
 
@@ -748,15 +747,15 @@ void Var::print(std::ostream& out){
 TEST_CASE("Var"){
 
     //Test Varialbels
-        Num* one = new Num(1);
-        Num* two = new Num(2);
-        Add* one_two = new Add(one,two);
-        Mult* mult_one_two = new Mult(one,two);
-        Var* first = new Var("first");
-        Var* second = new Var("second");
+        NumExpr* one = new NumExpr(1);
+        NumExpr* two = new NumExpr(2);
+        AddExpr* one_two = new AddExpr(one,two);
+        MultExpr* mult_one_two = new MultExpr(one,two);
+        VarExpr* first = new VarExpr("first");
+        VarExpr* second = new VarExpr("second");
 
     //Checking Var Equality
-        CHECK(first->equals(new Var("first")));
+        CHECK(first->equals(new VarExpr("first")));
 
     //Checking Var Inequality
         CHECK(!(first->equals(second)));
@@ -775,13 +774,13 @@ TEST_CASE("Var"){
         CHECK(second->has_variable() == true);
     
     //Checking subst()
-        CHECK(first->subst("first", new Add(new Num(3), new Var("x")))->equals(new Add(new Num(3), new Var("x"))));
-        CHECK(first->subst("second", new Var("second"))->equals(new Var("first")));
+        CHECK(first->subst("first", new AddExpr(new NumExpr(3), new VarExpr("x")))->equals(new AddExpr(new NumExpr(3), new VarExpr("x"))));
+        CHECK(first->subst("second", new VarExpr("second"))->equals(new VarExpr("first")));
     
     //Checking print()
         {
             std::stringstream rep_cout ("");
-            (new Var("x"))->print(rep_cout);
+            (new VarExpr("x"))->print(rep_cout);
             CHECK(rep_cout.str() == "x");
         }
     
@@ -796,30 +795,30 @@ TEST_CASE("Var"){
 
 /*_let implementations*/
 //Default Constructor
-_let::_let(std::string lhs_name, Expr *rhs,Expr *body){
+LetExpr::LetExpr(std::string lhs_name, Expr *rhs,Expr *body){
     this->lhs_name = lhs_name;
     this->rhs = rhs;
     this->body = body;
 }
 
 //Methods
-bool _let::equals(Expr *e){
-    _let *l = dynamic_cast<_let*>(e);
+bool LetExpr::equals(Expr *e){
+    LetExpr *l = dynamic_cast<LetExpr*>(e);
     if(l == NULL)
         return false;
     else
         return this->lhs_name == l->lhs_name && this->rhs->equals(l->rhs) && this->body->equals(l->body);
 }
 
-int _let::interp(){
-    return this->body->subst(this->lhs_name, new Num(this->rhs->interp()))->interp();
+Val* LetExpr::interp(){
+    return this->body->subst(this->lhs_name, new NumExpr(this->rhs->interp()))->interp();
 }
 
-bool _let::has_variable(){
+bool LetExpr::has_variable(){
     return this->rhs->has_variable() || this->body->has_variable();
 }
 
-Expr* _let::subst(std::string s, Expr *e){
+Expr* LetExpr::subst(std::string s, Expr *e){
     if(this->lhs_name == s){
         this->rhs = this->rhs->subst(s, e);
     }
@@ -830,7 +829,7 @@ Expr* _let::subst(std::string s, Expr *e){
     return this;
 }
 
-void _let::print(std::ostream& out){
+void LetExpr::print(std::ostream& out){
     out << "(_let " << this->lhs_name << "=";
     this->rhs->print(out);
     out << " _in ";
@@ -848,32 +847,32 @@ void _let::print(std::ostream& out){
 
 //Method Tests
 TEST_CASE("_let"){
-    _let* firstExpression = new _let("x", new Num(7), new Mult(new Var("x"), new Num(7)));
-    _let* secondExpression = new _let("x", new Num(7), new _let("x", new Num(8), new Add(new Var("x"), new Num(7))));
-    _let* thridExpression = new _let("x", new Num(7), new _let("x", new Add(new Var("x"), new Num(8)), new Add(new Var("x"), new Num(7))));
-    _let* fourthExpression = new _let("x", new Num(7), new _let("y", new Num(8), new Add(new Var("x"), new Num(7))));
-    _let* invalidExpression_body_free_var = new _let("x", new Num(7), new _let("x", new Add(new Var("x"), new Num(8)), new Add(new Var("y"), new Num(7))));
-    _let* invalidExpression_rhs_free_var = new _let("y", new Var("y"), new Add(new Num(3), new Var("y")));
-    _let* noVariablePresent =new _let("x", new Num(7), new Mult(new Num(5), new Num(7)));
+    LetExpr* firstExpression = new _let("x", new NumExpr(7), new MultExpr(new VarExpr("x"), new NumExpr(7)));
+    LetExpr* secondExpression = new _let("x", new NumExpr(7), new _let("x", new NumExpr(8), new AddExpr(new VarExpr("x"), new NumExpr(7))));
+    LetExpr* thridExpression = new _let("x", new NumExpr(7), new _let("x", new AddExpr(new VarExpr("x"), new NumExpr(8)), new AddExpr(new VarExpr("x"), new NumExpr(7))));
+    LetExpr* fourthExpression = new _let("x", new NumExpr(7), new _let("y", new NumExpr(8), new AddExpr(new VarExpr("x"), new NumExpr(7))));
+    LetExpr* invalidExpression_body_free_VarExpr = new _let("x", new NumExpr(7), new _let("x", new AddExpr(new VarExpr("x"), new NumExpr(8)), new AddExpr(new VarExpr("y"), new NumExpr(7))));
+    LetExpr* invalidExpression_rhs_free_var = new _let("y", new VarExpr("y"), new AddExpr(new NumExpr(3), new VarExpr("y")));
+    LetExpr* noVariablePresent =new _let("x", new NumExpr(7), new MultExpr(new NumExpr(5), new NumExpr(7)));
     
     //print variables
-    _let* print_test = new _let("x", new Num(5), new Add(new _let("y", new Num(3), new Add(new Var("y"), new Num(2))), new Var("x")));
+    LetExpr* print_test = new _let("x", new NumExpr(5), new AddExpr(new _let("y", new NumExpr(3), new AddExpr(new VarExpr("y"), new NumExpr(2))), new VarExpr("x")));
     
     //Checking _let Equality
-    CHECK(firstExpression->equals(new _let("x", new Num(7), new Mult(new Var("x"), new Num(7)))));
+    CHECK(firstExpression->equals(new _let("x", new NumExpr(7), new MultExpr(new VarExpr("x"), new NumExpr(7)))));
 
     //Checking _let Inequality
-    CHECK(!(firstExpression->equals(new _let("y", new Num(7), new Mult(new Var("x"), new Num(7))))));
-    CHECK(!(firstExpression->equals(new _let("x", new Num(8), new Mult(new Var("x"), new Num(7))))));
-    CHECK(!(firstExpression->equals(new _let("x", new Num(7), new Mult(new Var("y"), new Num(7))))));
-    CHECK(!(firstExpression->equals(new _let("x", new Num(7), new Mult(new Var("x"), new Num(8))))));
-    CHECK(!(firstExpression->equals(new _let("x", new Num(7), new Mult(new Num(7), new Var("x"))))));
+    CHECK(!(firstExpression->equals(new _let("y", new NumExpr(7), new MultExpr(new VarExpr("x"), new NumExpr(7))))));
+    CHECK(!(firstExpression->equals(new _let("x", new NumExpr(8), new MultExpr(new VarExpr("x"), new NumExpr(7))))));
+    CHECK(!(firstExpression->equals(new _let("x", new NumExpr(7), new MultExpr(new VarExpr("y"), new NumExpr(7))))));
+    CHECK(!(firstExpression->equals(new _let("x", new NumExpr(7), new MultExpr(new VarExpr("x"), new NumExpr(8))))));
+    CHECK(!(firstExpression->equals(new _let("x", new NumExpr(7), new MultExpr(new NumExpr(7), new VarExpr("x"))))));
     
     //Checking Class Inequality
-    CHECK(!firstExpression->equals(new Var("x")));
-    CHECK(!firstExpression->equals(new Num(7)));
-    CHECK(!firstExpression->equals(new Add(new Num(0), new Num(0))));
-    CHECK(!firstExpression->equals(new Mult(new Num(0), new Num(0))));
+    CHECK(!firstExpression->equals(new VarExpr("x")));
+    CHECK(!firstExpression->equals(new NumExpr(7)));
+    CHECK(!firstExpression->equals(new AddExpr(new NumExpr(0), new NumExpr(0))));
+    CHECK(!firstExpression->equals(new MultExpr(new NumExpr(0), new NumExpr(0))));
     
     //Checking subst()
     // _let x = 1
@@ -881,56 +880,56 @@ TEST_CASE("_let"){
     // ==
     // _let x = 1
     // _in  x + 2
-    Expr* noSubstitutionNeeded = new _let("x", new Num(1),new Add(new Var("x"), new Num(2)));
-    CHECK(noSubstitutionNeeded->subst("x", new Add(new Var("y"), new Num(3)))->equals(new _let("x", new Num(1),new Add(new Var("x"), new Num(2)))));
+    Expr* noSubstitutionNeeded = new _let("x", new NumExpr(1),new AddExpr(new VarExpr("x"), new NumExpr(2)));
+    CHECK(noSubstitutionNeeded->subst("x", new AddExpr(new VarExpr("y"), new NumExpr(3)))->equals(new _let("x", new NumExpr(1),new AddExpr(new VarExpr("x"), new NumExpr(2)))));
     
     // _let z = x
     // _in  z + 2 -> subst("z", 0)
     // =
     // _let z = x
     // _in  z + 2
-    Expr* noSubstitutionNeeded_DifferentVariable = new _let("z", new Var("x"), new Add(new Var("z"), new Num(2)));
-    CHECK(noSubstitutionNeeded_DifferentVariable->subst("z", new Num(0))->equals(new _let("z", new Var("x"), new Add(new Var("z"), new Num(2)))));
+    Expr* noSubstitutionNeeded_DifferentVariable = new _let("z", new VarExpr("x"), new AddExpr(new VarExpr("z"), new NumExpr(2)));
+    CHECK(noSubstitutionNeeded_DifferentVariable->subst("z", new NumExpr(0))->equals(new _let("z", new VarExpr("x"), new AddExpr(new VarExpr("z"), new NumExpr(2)))));
     
     // _let x = x
     // _in  x + 2  -> subst("x", y+3)
     // ==
     // _let x = y+3
     // _in  x + 2
-    Expr* subOnlyTheRHS_SameVariable = new _let("x", new Var("x"), new Add(new Var("x"), new Num(2)));
-    CHECK(subOnlyTheRHS_SameVariable->subst("x", new Add(new Var("y"), new Num(3)))->equals(new _let("x", new Add(new Var("y"), new Num(3)), new Add(new Var("x"), new Num(2)))));
+    Expr* subOnlyTheRHS_SameVariable = new _let("x", new VarExpr("x"), new AddExpr(new VarExpr("x"), new NumExpr(2)));
+    CHECK(subOnlyTheRHS_SameVariable->subst("x", new AddExpr(new VarExpr("y"), new NumExpr(3)))->equals(new _let("x", new AddExpr(new VarExpr("y"), new NumExpr(3)), new AddExpr(new VarExpr("x"), new NumExpr(2)))));
     
     // _let x = y
     // _in  x + 2 -> subst("y", 8)
     // =
     // _let x = 8
     // _in  x + 2
-    Expr* subOnlyTheRHS_DifferentVariable = new _let("x", new Var("y"), new Add(new Var("x"), new Num(2)));
-    CHECK(subOnlyTheRHS_DifferentVariable->subst("y", new Num(8))->equals(new _let("x", new Num(8), new Add(new Var("x"), new Num(2)))));
+    Expr* subOnlyTheRHS_DifferentVariable = new _let("x", new VarExpr("y"), new AddExpr(new VarExpr("x"), new NumExpr(2)));
+    CHECK(subOnlyTheRHS_DifferentVariable->subst("y", new NumExpr(8))->equals(new _let("x", new NumExpr(8), new AddExpr(new VarExpr("x"), new NumExpr(2)))));
     
     // _let z = z + 2
     // _in  z + 2 -> subst("z", 0)
     // =
     // _let z = 0 + 2
     // _in  z + 2
-    Expr* subOnlyRHS_Addition = new _let("z", new Add(new Var("z"), new Num(2)), new Add(new Var("z"), new Num(2)));
-    CHECK(subOnlyRHS_Addition->subst("z", new Num(0))->equals(new _let("z", new Add(new Num(0), new Num(2)), new Add(new Var("z"), new Num(2)))));
+    Expr* subOnlyRHS_AddExprition = new _let("z", new AddExpr(new VarExpr("z"), new NumExpr(2)), new AddExpr(new VarExpr("z"), new NumExpr(2)));
+    CHECK(subOnlyRHS_AddExprition->subst("z", new NumExpr(0))->equals(new _let("z", new AddExpr(new NumExpr(0), new NumExpr(2)), new AddExpr(new VarExpr("z"), new NumExpr(2)))));
     
     // _let x = y
     // _in  x + y -> subst("y", 8)
     // ==
     // _let x = 8
     // _in  x + 8
-    Expr* subTheRHSAndBody = new _let("x", new Var("y"), new Add(new Var("x"), new Var("y")));
-    CHECK(subTheRHSAndBody->subst("y", new Num(8))->equals(new _let("x", new Num(8), new Add(new Var("x"), new Num(8)))));
+    Expr* subTheRHSAndBody = new _let("x", new VarExpr("y"), new AddExpr(new VarExpr("x"), new VarExpr("y")));
+    CHECK(subTheRHSAndBody->subst("y", new NumExpr(8))->equals(new _let("x", new NumExpr(8), new AddExpr(new VarExpr("x"), new NumExpr(8)))));
     
     // _let x = 8
     // _in  x + 2 + y -> subst("y", 9)
     // =
     // _let x = 8
     // _in  x + 2 + 9
-    Expr* subWithinBodyOnly = new _let("x", new Num(8), new Add(new Var("x"), new Add(new Num(2), new Var("y"))));
-    CHECK(subWithinBodyOnly->subst("y", new Num(9))->equals(new _let("x", new Num(8), new Add(new Var("x"), new Add(new Num(2), new Num(9))))));
+    Expr* subWithinBodyOnly = new _let("x", new NumExpr(8), new AddExpr(new VarExpr("x"), new AddExpr(new NumExpr(2), new VarExpr("y"))));
+    CHECK(subWithinBodyOnly->subst("y", new NumExpr(9))->equals(new _let("x", new NumExpr(8), new AddExpr(new VarExpr("x"), new AddExpr(new NumExpr(2), new NumExpr(9))))));
     
     
     //Checking interp()
@@ -957,7 +956,7 @@ TEST_CASE("_let"){
     
     /*Depricated*/
 //    //Checking pretty_print()
-//    Add* exampleTests = new Add(new Mult(new Num(5), new _let("x", new Num(5), new Var("x"))), new Num(1));
+//    Add* exampleTests = new Add(new MultExpr(new NumExpr(5), new _let("x", new NumExpr(5), new Var("x"))), new NumExpr(1));
 //    {
 //        std::stringstream rep_cout ("");
 //        print_test->pretty_print(rep_cout);
