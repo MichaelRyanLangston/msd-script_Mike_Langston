@@ -6,9 +6,9 @@ FLAGS = --std=c++2a -O2 -Wall -fsanitize=undefined -fsanitize=address -o
 
 FILEPATH = ./MSDscriptCommandLine/MSDscriptCommandLine/
 
-HEADERFILES = $(FILEPATH)use_arguments.hpp $(FILEPATH)expr.hpp $(FILEPATH)catch.h
+HEADERFILES = $(FILEPATH)use_arguments.hpp $(FILEPATH)expr.hpp $(FILEPATH)catch.h $(FILEPATH)val.hpp
 
-SOURCEFILES = $(FILEPATH)main.cpp $(FILEPATH)use_arguments.cpp $(FILEPATH)expr.cpp
+SOURCEFILES = $(FILEPATH)main.cpp $(FILEPATH)use_arguments.cpp $(FILEPATH)expr.cpp $(FILEPATH)val.cpp
 
 EXENAME = msdscript
 
