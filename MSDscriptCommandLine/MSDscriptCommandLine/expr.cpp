@@ -287,23 +287,28 @@ Expr* parse_multicand(std::istream &to_Parse){
 TEST_CASE("parse_multiccand"){
 }
 
+
+
+
+
+
 /*Num Implementation*/
 //Default Constructor
-NumExpr::NumExpr(Val* val){
-    this->val = val;
+NumExpr::NumExpr(int rep){
+    this->rep = rep;
 }
 
 //Methods
-bool NumExpr::equals(Expr *e){
+bool NumExpr::equals(Expr* e){
     NumExpr* ne = dynamic_cast<NumExpr*>(e);
     if (ne == NULL)
         return false;
     else
-        return this->val->equals(ne->val);
+        return this->rep == ne->rep;
 }
 
 Val* NumExpr::interp(){
-    return this->val;
+    return new NumVal(this->rep);
 }
 
 bool NumExpr::has_variable(){
@@ -315,7 +320,7 @@ Expr* NumExpr::subst(std::string s, Expr *e){
 }
 
 void NumExpr::print(std::ostream& out){
-    out << this->val->getVal();
+    out << this->rep;
 }
 
 /*Depricated*/

@@ -63,10 +63,10 @@ Expr* parse_expr(std::istream & to_Parse);
 class NumExpr : public Expr {
 public:
     //Member Variables
-    Val* val;
+    int rep;
     
     //Default Constructor
-    NumExpr(Val* val);
+    NumExpr(int rep);
     
     //Methods
     bool equals(Expr *e);
