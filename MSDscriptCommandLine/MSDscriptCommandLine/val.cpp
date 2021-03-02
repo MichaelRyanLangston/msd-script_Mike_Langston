@@ -6,14 +6,21 @@
 //
 
 #include "val.hpp"
-#include "expr.hpp"
 
 /*Consturctor*/
-NumVal::NumVal(int number){
-    this->number = number;
+NumVal::NumVal(int value){
+    this->value = value;
 }
 
 /*Methods*/
-Expr* NumVal::to_expr() {
-    return new NumExpr(number);
+int NumVal::getVal(){
+    return this->value;
+}
+
+bool NumVal::equals(Val* v){
+    NumVal* nv = dynamic_cast<NumVal*>(v);
+    if (nv == NULL)
+        return false;
+    else
+        return this->value == nv->value;
 }

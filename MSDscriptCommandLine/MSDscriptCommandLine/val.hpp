@@ -10,27 +10,24 @@
 
 #include <stdio.h>
 
-//Prototype
-class Expr;
-
-
-/*Abstract Class*/
 class Val{
 public:
     /*Method*/
-    virtual Expr* to_expr() = 0;
+    virtual int getVal() = 0;
+    virtual bool equals(Val *v) = 0;
     
 };
 
-class NumVal : public Val {
+class NumVal : public Val{
 public:
-    int number;
+    int value;
     
     /*Constructor*/
     NumVal(int value);
     
     /*Method*/
-    Expr* to_expr();
+    int getVal();
+    bool equals(Val *v);
 };
 
 #endif /* val_hpp */
