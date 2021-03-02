@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		CA35725A25E7F38700A7B650 /* val.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CA35725825E7F38700A7B650 /* val.cpp */; };
-		CA35725B25E7F38700A7B650 /* val.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CA35725825E7F38700A7B650 /* val.cpp */; };
 		CACD7E9425B7F7C800098D2C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CACD7E9325B7F7C800098D2C /* main.cpp */; };
 		CACD7E9D25B7F82B00098D2C /* use_arguments.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CACD7E9B25B7F82B00098D2C /* use_arguments.cpp */; };
 		CAEC2ED025C9AB2500EF989A /* coverageTesting.m in Sources */ = {isa = PBXBuildFile; fileRef = CAEC2ECF25C9AB2500EF989A /* coverageTesting.m */; };
@@ -30,8 +28,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		CA35725825E7F38700A7B650 /* val.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = val.cpp; sourceTree = "<group>"; };
-		CA35725925E7F38700A7B650 /* val.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = val.hpp; sourceTree = "<group>"; };
 		CACD7E9025B7F7C800098D2C /* MSDscriptCommandLine */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MSDscriptCommandLine; sourceTree = BUILT_PRODUCTS_DIR; };
 		CACD7E9325B7F7C800098D2C /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		CACD7E9B25B7F82B00098D2C /* use_arguments.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = use_arguments.cpp; sourceTree = "<group>"; };
@@ -91,8 +87,6 @@
 				CAED112B25BE65DA00E9D2CC /* catch.h */,
 				CAED112C25BE67F000E9D2CC /* expr.cpp */,
 				CAED112D25BE67F000E9D2CC /* expr.hpp */,
-				CA35725825E7F38700A7B650 /* val.cpp */,
-				CA35725925E7F38700A7B650 /* val.hpp */,
 			);
 			path = MSDscriptCommandLine;
 			sourceTree = "<group>";
@@ -198,7 +192,6 @@
 				CACD7E9D25B7F82B00098D2C /* use_arguments.cpp in Sources */,
 				CACD7E9425B7F7C800098D2C /* main.cpp in Sources */,
 				CAED112E25BE67F000E9D2CC /* expr.cpp in Sources */,
-				CA35725A25E7F38700A7B650 /* val.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -209,7 +202,6 @@
 				CAEC2EDD25C9AD7000EF989A /* run.cpp in Sources */,
 				CAEC2ED725C9AB8600EF989A /* expr.cpp in Sources */,
 				CAEC2ED025C9AB2500EF989A /* coverageTesting.m in Sources */,
-				CA35725B25E7F38700A7B650 /* val.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
