@@ -52,11 +52,16 @@ void parse_keyword(std::istream &to_Parse, std::string expected_keyword);
 Expr* parse_num(std::istream &to_Parse);
 Expr* parse_var(std::istream &to_Parse);
 Expr* parse_let(std::istream &to_Parse);
+Expr* parse_if(std::istream &to_Parse);
 
 //Parsing Functions
-Expr* parse_multicand(std::istream &to_Parse);
-Expr* parse_addend(std::istream &to_Parse);
 Expr* parse_expr(std::istream & to_Parse);
+Expr* parse_comparg(std::istream & to_Parse);
+Expr* parse_addend(std::istream &to_Parse);
+Expr* parse_multicand(std::istream &to_Parse);
+
+
+
 
 
 

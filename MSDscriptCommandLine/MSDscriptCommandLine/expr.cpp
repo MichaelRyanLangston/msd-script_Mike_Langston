@@ -192,7 +192,7 @@ TEST_CASE("parse_var"){
 }
 
 Expr* parse_let(std::istream &to_Parse){
-    parse_keyword(to_Parse, "_let");
+    parse_keyword(to_Parse, "let");
     skip_whitespace(to_Parse);
     std::string lhs_name = parse_var(to_Parse)->to_string();
     
@@ -210,19 +210,91 @@ Expr* parse_let(std::istream &to_Parse){
 TEST_CASE("parse_let"){
     //No spaces
     {
-        std::stringstream testing ("_letx=5_inx+3");
+        //the _ has been consumed at this point
+        std::stringstream testing ("letx=5_inx+3");
         CHECK(parse_let(testing)->equals(new LetExpr("x", new NumExpr(5), new AddExpr(new VarExpr("x"), new NumExpr (3)))));
     }
     //some spaces
     {
-        std::stringstream testing ("_let  x  =   5   _in  x   +  3");
+        std::stringstream testing ("let  x  =   5   _in  x   +  3");
         CHECK(parse_let(testing)->equals(new LetExpr("x", new NumExpr(5), new AddExpr(new VarExpr("x"), new NumExpr (3)))));
     }
 }
 
+Expr* parse_if(std::istream &to_Parse){
+    parse_keyword(to_Parse, "if");
+    skip_whitespace(to_Parse);
+    Expr* comparison = parse_expr(to_Parse);
+    
+    skip_whitespace(to_Parse);
+    parse_keyword(to_Parse, "_then");
+    Expr* if_true = parse_expr(to_Parse);
+    
+    parse_keyword(to_Parse, "_else");
+    skip_whitespace(to_Parse);
+    Expr* if_false = parse_expr(to_Parse);
+    
+    return new IfExpr(comparison, if_true, if_false);
+}
+
+TEST_CASE("parse_if"){
+    //No spaces
+    {
+        //the _ has been consumed at this point
+        std::stringstream testing ("ifx==5_then5_else6");
+        CHECK(parse_if(testing)->equals(new IfExpr(new EqExpr(new VarExpr("x"), new NumExpr(5)), new NumExpr(5), new NumExpr(6))));
+    }
+    //some spaces
+    {
+        std::stringstream testing ("if   x   ==  5 _then   5  _else   6");
+        CHECK(parse_if(testing)->equals(new IfExpr(new EqExpr(new VarExpr("x"), new NumExpr(5)), new NumExpr(5), new NumExpr(6))));
+    }
+}
 
 //Parsing Functions
 Expr* parse_expr(std::istream & to_Parse){
+    Expr* e = parse_comparg(to_Parse);
+    
+    skip_whitespace(to_Parse);
+    
+    int c = to_Parse.peek();
+    if (c == '=') {
+        consume_character(to_Parse, '=');
+        c = to_Parse.peek();
+        if (c == '=') {
+            consume_character(to_Parse, '=');
+            Expr* rhs = parse_expr(to_Parse);
+            return new EqExpr(e, rhs);
+        }
+        throw std::runtime_error("Invalid Operand...");
+    }
+    return e;
+}
+
+TEST_CASE("parse expr"){
+    {
+        std::stringstream rep_cout (" 3 == 4");
+        CHECK(parse_expr(rep_cout)->equals(new EqExpr(new NumExpr(3), new NumExpr(4))));
+    }
+    {
+        std::stringstream rep_cout (" 3 =? 4");
+        CHECK_THROWS_WITH(parse_expr(rep_cout), "Invalid Operand...");
+    }
+    {
+        std::stringstream rep_cout (" 3 + 4");
+        CHECK(parse_expr(rep_cout)->equals(new AddExpr(new NumExpr(3), new NumExpr(4))));
+    }
+    {
+        std::stringstream rep_cout (" 3 * 4");
+        CHECK(parse_expr(rep_cout)->equals(new MultExpr(new NumExpr(3), new NumExpr(4))));
+    }
+    {
+        std::stringstream rep_cout (" 3 ");
+        CHECK(parse_expr(rep_cout)->equals(new NumExpr(3)));
+    }
+}
+
+Expr* parse_comparg(std::istream & to_Parse){
     Expr* e = parse_addend(to_Parse);
     
     skip_whitespace(to_Parse);
@@ -230,23 +302,30 @@ Expr* parse_expr(std::istream & to_Parse){
     int c = to_Parse.peek();
     if (c == '+') {
         consume_character(to_Parse, '+');
-        Expr* rhs = parse_expr(to_Parse);
+        Expr* rhs = parse_comparg(to_Parse);
         return new AddExpr(e, rhs);
     }
     else
         return e;
 }
 
-TEST_CASE("parse_expr"){
-    //Parse Normal Addition Function
+TEST_CASE("parse_comparg"){
     {
-        std::stringstream testing ("3 + 4");
-        CHECK(parse_expr(testing)->equals(new AddExpr(new NumExpr(3), new NumExpr(4))));
+        std::stringstream rep_cout (" 3 + 4");
+        CHECK(parse_comparg(rep_cout)->equals(new AddExpr(new NumExpr(3), new NumExpr(4))));
     }
-    //Parse something that isn't an add function
     {
-        std::stringstream testing ("3 * 4");
-        CHECK(parse_let(testing)->equals(new MultExpr(new NumExpr(3), new NumExpr(4))));
+        std::stringstream rep_cout (" 3 * 4");
+        CHECK(parse_comparg(rep_cout)->equals(new MultExpr(new NumExpr(3), new NumExpr(4))));
+    }
+    {
+        std::stringstream rep_cout (" 3 ");
+        CHECK(parse_comparg(rep_cout)->equals(new NumExpr(3)));
+    }
+    {
+        //the == is ignored and just 3 is returned according the present lodgic we have
+        std::stringstream rep_cout (" 3 == 4");
+        CHECK(parse_comparg(rep_cout)->equals(new NumExpr(3)));
     }
 }
 
@@ -266,15 +345,22 @@ Expr* parse_addend(std::istream &to_Parse){
 }
 
 TEST_CASE("parse addend"){
-    //Parse Normal Mult Function
     {
-        std::stringstream testing ("3 * 4");
-        CHECK(parse_let(testing)->equals(new MultExpr(new NumExpr(3), new NumExpr(4))));
+        std::stringstream rep_cout (" 3 * 4");
+        CHECK(parse_addend(rep_cout)->equals(new MultExpr(new NumExpr(3), new NumExpr(4))));
     }
-    //Parse something that isn't an Mult function
     {
-        std::stringstream testing ("3 + 4");
-        CHECK(parse_expr(testing)->equals(new AddExpr(new NumExpr(3), new NumExpr(4))));
+        std::stringstream rep_cout (" 3 + 4");
+        CHECK(parse_addend(rep_cout)->equals(new NumExpr(3)));
+    }
+    {
+        std::stringstream rep_cout (" 3 ");
+        CHECK(parse_addend(rep_cout)->equals(new NumExpr(3)));
+    }
+    {
+        //the == is ignored and just 3 is returned according the lodgic
+        std::stringstream rep_cout (" 3 == 4");
+        CHECK(parse_addend(rep_cout)->equals(new NumExpr(3)));
     }
 }
 
@@ -297,14 +383,58 @@ Expr* parse_multicand(std::istream &to_Parse){
         return parse_var(to_Parse);
     }
     else if (c == '_'){
-        return parse_let(to_Parse);
+        consume_character(to_Parse, '_');
+        c = to_Parse.peek();
+        if (c == 'l'){
+            return parse_let(to_Parse);
+        }
+        else if (c == 't'){
+            parse_keyword(to_Parse, "true");
+            return new BoolExpr(true);
+        }
+        else if (c == 'f'){
+            parse_keyword(to_Parse, "false");
+            return new BoolExpr(false);
+        }
+        else{
+            return parse_if(to_Parse);
+        }
     }
-    else{
-        consume_character(to_Parse, c);
-        throw std::runtime_error("invalid input");
-    }
+    consume_character(to_Parse, c);
+    throw std::runtime_error("Invalid Input...");
 }
 
+TEST_CASE("parse multicand"){
+    {
+        std::stringstream testing ("@");
+        CHECK_THROWS_WITH(parse_multicand(testing), "Invalid Input...");
+    }
+    {
+        std::stringstream testing ("(4");
+        CHECK_THROWS_WITH(parse_multicand(testing), "One or more closing parentheses are missing.");
+    }
+    {
+        std::stringstream testing ("(4)");
+        CHECK(parse_multicand(testing)->equals(new NumExpr(4)));
+    }
+    {
+        std::stringstream testing ("_ifx==5_then5_else6");
+        CHECK(parse_multicand(testing)->equals(new IfExpr(new EqExpr(new VarExpr("x"), new NumExpr(5)), new NumExpr(5), new NumExpr(6))));
+    }
+    {
+        //the _ has been consumed at this point
+        std::stringstream testing ("_letx=5_inx+3");
+        CHECK(parse_multicand(testing)->equals(new LetExpr("x", new NumExpr(5), new AddExpr(new VarExpr("x"), new NumExpr (3)))));
+    }
+    {
+        std::stringstream testing ("_true");
+        CHECK(parse_multicand(testing)->equals(new BoolExpr(true)));
+    }
+    {
+        std::stringstream testing ("_false");
+        CHECK(parse_multicand(testing)->equals(new BoolExpr(false)));
+    }
+}
 
 
 
@@ -1206,6 +1336,7 @@ void IfExpr::print(std::ostream& out){
 TEST_CASE("IfExpr Tests"){
     /* equals() */
     CHECK((new IfExpr(new NumExpr(0), new NumExpr(0) , new NumExpr(0)))->equals(new IfExpr(new NumExpr(0), new NumExpr(0) , new NumExpr(0))));
+    CHECK(!((new IfExpr(new NumExpr(0), new NumExpr(0) , new NumExpr(0)))->equals(new NumExpr(0))));
     CHECK(!((new IfExpr(new NumExpr(1), new NumExpr(0) , new NumExpr(0)))->equals(new IfExpr(new NumExpr(0), new NumExpr(0) , new NumExpr(0)))));
     CHECK(!((new IfExpr(new NumExpr(0), new NumExpr(1) , new NumExpr(0)))->equals(new IfExpr(new NumExpr(0), new NumExpr(0) , new NumExpr(0)))));
     CHECK(!((new IfExpr(new NumExpr(0), new NumExpr(0) , new NumExpr(1)))->equals(new IfExpr(new NumExpr(0), new NumExpr(0) , new NumExpr(0)))));
