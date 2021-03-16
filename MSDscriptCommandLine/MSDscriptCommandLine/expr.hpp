@@ -53,12 +53,14 @@ Expr* parse_num(std::istream &to_Parse);
 Expr* parse_var(std::istream &to_Parse);
 Expr* parse_let(std::istream &to_Parse);
 Expr* parse_if(std::istream &to_Parse);
+Expr* parse_fun(std::istream &to_Parse);
 
 //Parsing Functions
 Expr* parse_expr(std::istream & to_Parse);
 Expr* parse_comparg(std::istream & to_Parse);
 Expr* parse_addend(std::istream &to_Parse);
 Expr* parse_multicand(std::istream &to_Parse);
+Expr* parse_inner(std::istream &to_Parse);
 
 
 
@@ -202,6 +204,40 @@ public:
     
     //Default Constructor
     IfExpr(Expr* comparison, Expr* if_true, Expr* if_false);
+    
+    //Methods
+    bool equals(Expr *e);
+    Val* interp();
+    bool has_variable();
+    Expr* subst(std::string s, Expr *e);
+    void print(std::ostream& out);
+};
+
+class FunExpr : public Expr {
+public:
+    //Member Variables
+    std::string formal_arg;
+    Expr* body;
+    
+    //Default Constructor
+    FunExpr(std::string formal_arg, Expr* body);
+    
+    //Methods
+    bool equals(Expr* e);
+    Val* interp();
+    bool has_variable();
+    Expr* subst(std::string s, Expr* e);
+    void print(std::ostream& out);
+};
+
+class CallExpr : public Expr {
+public:
+    //Member Variables
+    Expr* to_be_called;
+    Expr* actual_arg;
+    
+    //Default Constructor
+    CallExpr(Expr* to_be_called, Expr* actual_arg);
     
     //Methods
     bool equals(Expr *e);

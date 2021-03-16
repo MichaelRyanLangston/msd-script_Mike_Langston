@@ -85,10 +85,10 @@
 		CACD7E9225B7F7C800098D2C /* MSDscriptCommandLine */ = {
 			isa = PBXGroup;
 			children = (
+				CAED112B25BE65DA00E9D2CC /* catch.h */,
 				CACD7E9325B7F7C800098D2C /* main.cpp */,
 				CACD7E9B25B7F82B00098D2C /* use_arguments.cpp */,
 				CACD7E9C25B7F82B00098D2C /* use_arguments.hpp */,
-				CAED112B25BE65DA00E9D2CC /* catch.h */,
 				CAED112C25BE67F000E9D2CC /* expr.cpp */,
 				CAED112D25BE67F000E9D2CC /* expr.hpp */,
 				CA9D8A8825EDCF77001FC89F /* val.cpp */,

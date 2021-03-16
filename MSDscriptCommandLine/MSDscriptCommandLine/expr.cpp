@@ -251,6 +251,21 @@ TEST_CASE("parse_if"){
     }
 }
 
+Expr* parse_fun(std::istream &to_Parse){
+    parse_keyword(to_Parse, "un");
+    skip_whitespace(to_Parse);
+    Expr* formal_arg = parse_expr(to_Parse);
+    
+    skip_whitespace(to_Parse);
+    Expr* body = parse_expr(to_Parse);
+    
+    return new FunExpr(formal_arg->to_string(), body);
+}
+
+TEST_CASE("parse_fun"){
+    
+}
+
 //Parsing Functions
 Expr* parse_expr(std::istream & to_Parse){
     Expr* e = parse_comparg(to_Parse);
@@ -365,6 +380,18 @@ TEST_CASE("parse addend"){
 }
 
 Expr* parse_multicand(std::istream &to_Parse){
+    Expr* e = parse_inner(to_Parse);
+    while (to_Parse.peek() == '(') {
+        consume_character(to_Parse, '(');
+        skip_whitespace(to_Parse);
+        Expr* actual_arg = parse_expr(to_Parse);
+        consume_character(to_Parse, ')');
+        e = new CallExpr(e, actual_arg);
+    }
+    return e;
+}
+
+Expr* parse_inner(std::istream &to_Parse){
     skip_whitespace(to_Parse);
     
     int c = to_Parse.peek();
@@ -393,47 +420,67 @@ Expr* parse_multicand(std::istream &to_Parse){
             return new BoolExpr(true);
         }
         else if (c == 'f'){
-            parse_keyword(to_Parse, "false");
-            return new BoolExpr(false);
+            consume_character(to_Parse, 'f');
+            c = to_Parse.peek();
+            if (c == 'a') {
+                parse_keyword(to_Parse, "alse");
+                return new BoolExpr(false);
+            }
+            else if(c == 'u'){
+                return parse_fun(to_Parse);
+            }
+            else{
+                consume_character(to_Parse, c);
+                throw std::runtime_error("Invalid Input...");
+            }
         }
         else{
             return parse_if(to_Parse);
         }
     }
-    consume_character(to_Parse, c);
-    throw std::runtime_error("Invalid Input...");
+    else{
+        consume_character(to_Parse, c);
+        throw std::runtime_error("Invalid Input...");
+    }
 }
 
-TEST_CASE("parse multicand"){
+TEST_CASE("parse inner"){
     {
         std::stringstream testing ("@");
-        CHECK_THROWS_WITH(parse_multicand(testing), "Invalid Input...");
+        CHECK_THROWS_WITH(parse_inner(testing), "Invalid Input...");
     }
     {
         std::stringstream testing ("(4");
-        CHECK_THROWS_WITH(parse_multicand(testing), "One or more closing parentheses are missing.");
+        CHECK_THROWS_WITH(parse_inner(testing), "One or more closing parentheses are missing.");
     }
     {
         std::stringstream testing ("(4)");
-        CHECK(parse_multicand(testing)->equals(new NumExpr(4)));
+        CHECK(parse_inner(testing)->equals(new NumExpr(4)));
     }
     {
         std::stringstream testing ("_ifx==5_then5_else6");
-        CHECK(parse_multicand(testing)->equals(new IfExpr(new EqExpr(new VarExpr("x"), new NumExpr(5)), new NumExpr(5), new NumExpr(6))));
+        CHECK(parse_inner(testing)->equals(new IfExpr(new EqExpr(new VarExpr("x"), new NumExpr(5)), new NumExpr(5), new NumExpr(6))));
     }
     {
         //the _ has been consumed at this point
         std::stringstream testing ("_letx=5_inx+3");
-        CHECK(parse_multicand(testing)->equals(new LetExpr("x", new NumExpr(5), new AddExpr(new VarExpr("x"), new NumExpr (3)))));
+        CHECK(parse_inner(testing)->equals(new LetExpr("x", new NumExpr(5), new AddExpr(new VarExpr("x"), new NumExpr (3)))));
     }
     {
         std::stringstream testing ("_true");
-        CHECK(parse_multicand(testing)->equals(new BoolExpr(true)));
+        CHECK(parse_inner(testing)->equals(new BoolExpr(true)));
     }
     {
         std::stringstream testing ("_false");
-        CHECK(parse_multicand(testing)->equals(new BoolExpr(false)));
+        CHECK(parse_inner(testing)->equals(new BoolExpr(false)));
     }
+    
+//    _let factrl = _fun (factrl)
+//                    _fun (x)
+//                      _if x == 1
+//                      _then 1
+//                      _else x * factrl(factrl)(x + -1)
+//    _in  factrl(factrl)(10)
 }
 
 
@@ -991,14 +1038,21 @@ bool LetExpr::has_variable(){
 }
 
 Expr* LetExpr::subst(std::string s, Expr *e){
-    if(this->lhs_name == s){
-        this->rhs = this->rhs->subst(s, e);
-    }
-    else{
-        this->rhs = this->rhs->subst(s, e);
+//    if(this->lhs_name == s){
+//        this->rhs = this->rhs->subst(s, e);
+//    }
+//    else{
+//        this->rhs = this->rhs->subst(s, e);
+//        this->body = this->body->subst(s, e);
+//    }
+//    return this;
+    
+    this->rhs = this->rhs->subst(s, e);
+    if(this->lhs_name != s){
         this->body = this->body->subst(s, e);
     }
     return this;
+    
 }
 
 void LetExpr::print(std::ostream& out){
@@ -1371,4 +1425,114 @@ TEST_CASE("IfExpr Tests"){
         (new IfExpr(new NumExpr(5), new NumExpr(6) , new NumExpr(4)))->print(rep_cout);
         CHECK(rep_cout.str() == "(_if 5_then 6_else 4)");
     }
+}
+
+/* FunExpr Implementations */
+//Default Constructor
+FunExpr::FunExpr(std::string formal_arg, Expr* body){
+    this->formal_arg = formal_arg;
+    this->body = body;
+}
+
+//Methods
+bool FunExpr::equals(Expr* e){
+    FunExpr* fe = dynamic_cast<FunExpr*>(e);
+    if (fe == NULL)
+        return false;
+    else
+        return this->formal_arg == fe->formal_arg && this->body->equals(fe->body);
+}
+
+Val* FunExpr::interp(){
+    return new FunVal(this->formal_arg, this->body);
+}
+
+bool FunExpr::has_variable(){
+    return false;
+}
+
+Expr* FunExpr::subst(std::string s, Expr* e){
+    if (s != formal_arg){
+        this->body = this->body->subst(s, e);
+    }
+    return this;
+}
+
+void FunExpr::print(std::ostream& out){
+    out << "(_fun (" + this->formal_arg + ") ";
+    this->body->print(out);
+    out << ")";
+}
+
+TEST_CASE("FunExpr Tests"){
+    /* equals() */
+    
+    
+    /* interp() */
+    
+    
+    /* has_variable() */
+    
+    
+    /* subst() */
+    
+    
+    /* print() */
+    
+}
+
+/* CallExpr */
+//Default Constructor
+CallExpr::CallExpr(Expr* to_be_called, Expr* actual_arg){
+    this->to_be_called = to_be_called;
+    this->actual_arg = actual_arg;
+}
+
+//Methods
+bool CallExpr::equals(Expr *e){
+    CallExpr* ce = dynamic_cast<CallExpr*>(e);
+    if (ce == NULL)
+        return false;
+    else
+        return this->to_be_called->equals(ce->to_be_called) && this->actual_arg->equals(ce->actual_arg);
+}
+
+Val* CallExpr::interp(){
+    return to_be_called->interp()->call(actual_arg->interp());
+}
+
+bool CallExpr::has_variable(){
+    return false;
+}
+
+Expr* CallExpr::subst(std::string s, Expr *e){
+    this->actual_arg->subst(s, e);
+    if (this->to_be_called->to_string() == s) {
+        this->to_be_called->subst(s, e);
+    }
+    return this;
+}
+
+void CallExpr::print(std::ostream& out){
+    this->to_be_called->print(out);
+    out << "(";
+    this->actual_arg->print(out);
+    out << ")";
+}
+
+TEST_CASE("CallExpr Tests"){
+    /* equals() */
+    
+    
+    /* interp() */
+    
+    
+    /* has_variable() */
+    
+    
+    /* subst() */
+    
+    
+    /* print() */
+    
 }
