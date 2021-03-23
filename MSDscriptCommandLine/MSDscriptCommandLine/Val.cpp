@@ -8,6 +8,7 @@
 #include "val.hpp"
 #include "expr.hpp"
 #include "catch.h"
+#include <sstream>
 
 /* NumVal Implementation */
 
@@ -51,6 +52,7 @@ bool NumVal::is_true(){
 Val* NumVal::call(Val* actual_arg){
     throw std::runtime_error("Non-FunVal object detected.");
 }
+
 
 //Testing
 TEST_CASE("NumVal Tests"){
@@ -178,20 +180,30 @@ bool FunVal::is_true(){
 }
 
 Val* FunVal::call(Val* actual_arg){
-    return this->body->subst(formal_arg, actual_arg->to_expr())->interp();
+    return this->body->subst(this->formal_arg, actual_arg->to_expr())->interp();
 }
 
 TEST_CASE("FunVal Tests"){
     /* equals() */
-    
+    CHECK((new FunVal("x", new AddExpr(new VarExpr("x"), new NumExpr(4))))->equals(new FunVal("x", new AddExpr(new VarExpr("x"), new NumExpr(4)))));
+    CHECK(!((new FunVal("x", new AddExpr(new VarExpr("x"), new NumExpr(4))))->equals(new FunVal("y", new AddExpr(new VarExpr("x"), new NumExpr(4))))));
+    CHECK(!((new FunVal("x", new AddExpr(new VarExpr("x"), new NumExpr(4))))->equals(new FunVal("x", new MultExpr(new VarExpr("x"), new NumExpr(4))))));
+    CHECK(!((new FunVal("x", new AddExpr(new VarExpr("x"), new NumExpr(4))))->equals(new BoolVal(true))));
     /* to_expr()*/
+    CHECK((new FunVal("x", new AddExpr(new VarExpr("x"), new NumExpr(4))))->to_expr()->equals(new FunExpr("x", new AddExpr(new VarExpr("x"), new NumExpr(4)))));
     
     /* add_to() */
+    CHECK_THROWS_WITH((new FunVal("x", new AddExpr(new VarExpr("x"), new NumExpr(4))))->add_to(new BoolVal(true)), "Non-NumVal object detected. Cannot perform addition.");
     
     /* mult_by() */
-    
+    CHECK_THROWS_WITH((new FunVal("x", new AddExpr(new VarExpr("x"), new NumExpr(4))))->mult_by(new BoolVal(true)), "Non-NumVal object detected. Cannot perform multiplication.");
     /* is_true() */
+    CHECK_THROWS_WITH((new FunVal("x", new AddExpr(new VarExpr("x"), new NumExpr(4))))->is_true(), "Non-BoolVal object detected.");
     
     /* call() */
+    CHECK((new FunVal("x", new AddExpr(new VarExpr("x"), new NumExpr(4))))->call(new NumVal(4))->equals(new NumVal(8)));
+    CHECK_THROWS_WITH((new FunVal("x", new AddExpr(new VarExpr("x"), new NumExpr(4))))->call(new BoolVal(true)), "Non-NumVal object detected. Cannot perform addition.");
+    CHECK((new FunVal("x", new AddExpr(new VarExpr("x"), new NumExpr(4))))->call((new FunVal("x", new AddExpr(new VarExpr("x"), new NumExpr(4))))->call(new NumVal(3)))->equals(new NumVal(11)));
     
+    CHECK((new FunVal("x", new FunExpr("y", new AddExpr(new VarExpr("x"), new VarExpr("y")))))->call(new NumVal(5))->equals((new FunExpr("y", new AddExpr(new VarExpr("x"), new VarExpr("y"))))->interp()));
 }

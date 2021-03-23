@@ -108,7 +108,7 @@ Expr* parse_num(std::istream &to_Parse){
         consume_character(to_Parse, '-');
     }
     if (!(isdigit(to_Parse.peek()))) {
-        throw std::runtime_error("parse_num: invalid character...");
+        throw std::runtime_error("parse_num: and unexpected charater has been detected between \"-\" and the number...");
     }
     
     while (true) {
@@ -140,17 +140,17 @@ TEST_CASE("parse_num"){
     
     {
         std::stringstream testing ("--33");
-        CHECK_THROWS_WITH(parse_num(testing), "parse_num: invalid character...");
+        CHECK_THROWS_WITH(parse_num(testing), "parse_num: and unexpected charater has been detected between \"-\" and the number...");
     }
     
     {
         std::stringstream testing ("-");
-        CHECK_THROWS_WITH(parse_num(testing), "parse_num: invalid character...");
+        CHECK_THROWS_WITH(parse_num(testing), "parse_num: and unexpected charater has been detected between \"-\" and the number...");
     }
     
     {
         std::stringstream testing ("g");
-        CHECK_THROWS_WITH(parse_num(testing), "parse_num: invalid character...");
+        CHECK_THROWS_WITH(parse_num(testing), "parse_num: and unexpected charater has been detected between \"-\" and the number...");
     }
 }
 
@@ -246,7 +246,7 @@ TEST_CASE("parse_if"){
     }
     //some spaces
     {
-        std::stringstream testing ("if   x   ==  5 _then   5  _else   6");
+        std::stringstream testing ("if  \n  x   \n   ==    \n   5  \n    _then \n    5   \n   _else  \n    6");
         CHECK(parse_if(testing)->equals(new IfExpr(new EqExpr(new VarExpr("x"), new NumExpr(5)), new NumExpr(5), new NumExpr(6))));
     }
 }
@@ -306,6 +306,20 @@ TEST_CASE("parse expr"){
     {
         std::stringstream rep_cout (" 3 ");
         CHECK(parse_expr(rep_cout)->equals(new NumExpr(3)));
+    }
+    {
+        std::stringstream rep_cout ("    _let     f     =    _fun        (x)   x+    1     _in   f    (   5   )   ");
+        CHECK(parse_expr(rep_cout)->equals(new LetExpr("f", new FunExpr("x",new AddExpr(new VarExpr("x"), new NumExpr(1))), new CallExpr(new VarExpr("f"), new NumExpr(5)))));
+    }
+    {
+        std::stringstream rep_cout ("_let factrl = _fun (factrl) _fun (x) _if x == 1 _then 1 _else x * factrl(factrl)(x + -1) _in  factrl(factrl)(10)");
+        EqExpr* conditional = new EqExpr(new VarExpr("x"), new NumExpr(1));
+        MultExpr* multElse = new MultExpr(new VarExpr("x"), new CallExpr(new CallExpr(new VarExpr("factrl"), new VarExpr("factrl")), new AddExpr(new VarExpr("x"), new NumExpr(-1))));
+        IfExpr* insideIfElse = new IfExpr(conditional, new NumExpr(1), multElse);
+        FunExpr* insidefunction = new FunExpr("x", insideIfElse);
+        FunExpr* function_rhs = new FunExpr("factrl", insidefunction);
+        LetExpr* overAll = new LetExpr("factrl", function_rhs, new CallExpr(new CallExpr(new VarExpr("factrl"), new VarExpr("factrl")), new NumExpr(10)));
+        CHECK(parse_expr(rep_cout)->equals(overAll));
     }
 }
 
@@ -381,14 +395,22 @@ TEST_CASE("parse addend"){
 
 Expr* parse_multicand(std::istream &to_Parse){
     Expr* e = parse_inner(to_Parse);
+    skip_whitespace(to_Parse);
     while (to_Parse.peek() == '(') {
         consume_character(to_Parse, '(');
-        skip_whitespace(to_Parse);
         Expr* actual_arg = parse_expr(to_Parse);
         consume_character(to_Parse, ')');
+        skip_whitespace(to_Parse);
         e = new CallExpr(e, actual_arg);
     }
     return e;
+}
+
+TEST_CASE("parse multicand"){
+    {
+        std::stringstream rep_cout ("         factrl   (   factrl   )       (   10   )   ");
+        CHECK(parse_multicand(rep_cout)->equals(new CallExpr(new CallExpr(new VarExpr("factrl"), new VarExpr("factrl")), new NumExpr(10))));
+    }
 }
 
 Expr* parse_inner(std::istream &to_Parse){
@@ -447,6 +469,14 @@ Expr* parse_inner(std::istream &to_Parse){
 TEST_CASE("parse inner"){
     {
         std::stringstream testing ("@");
+        CHECK_THROWS_WITH(parse_inner(testing), "Invalid Input...");
+    }
+    {
+        std::stringstream testing ("_@");
+        CHECK_THROWS_WITH(parse_inner(testing), "Unexpected keyword found.");
+    }
+    {
+        std::stringstream testing ("_f@");
         CHECK_THROWS_WITH(parse_inner(testing), "Invalid Input...");
     }
     {
@@ -796,7 +826,7 @@ void MultExpr::print(std::ostream& out){
 //}
 
 //Method Tests
-TEST_CASE("Mul"){
+TEST_CASE("Mult Test"){
     
     //Test Varialbels
         NumExpr* one = new NumExpr(1);
@@ -1038,21 +1068,10 @@ bool LetExpr::has_variable(){
 }
 
 Expr* LetExpr::subst(std::string s, Expr *e){
-//    if(this->lhs_name == s){
-//        this->rhs = this->rhs->subst(s, e);
-//    }
-//    else{
-//        this->rhs = this->rhs->subst(s, e);
-//        this->body = this->body->subst(s, e);
-//    }
-//    return this;
-    
-    this->rhs = this->rhs->subst(s, e);
     if(this->lhs_name != s){
-        this->body = this->body->subst(s, e);
+        return new LetExpr(this->lhs_name, this->rhs->subst(s, e), this->body->subst(s, e));
     }
-    return this;
-    
+    return new LetExpr(this->lhs_name, this->rhs->subst(s, e), this->body);
 }
 
 void LetExpr::print(std::ostream& out){
@@ -1452,10 +1471,10 @@ bool FunExpr::has_variable(){
 }
 
 Expr* FunExpr::subst(std::string s, Expr* e){
-    if (s != formal_arg){
-        this->body = this->body->subst(s, e);
+    if(this->formal_arg != s){
+        return new FunExpr(this->formal_arg, this->body->subst(s, e));
     }
-    return this;
+    return this->body->subst(this->formal_arg, e);
 }
 
 void FunExpr::print(std::ostream& out){
@@ -1466,19 +1485,28 @@ void FunExpr::print(std::ostream& out){
 
 TEST_CASE("FunExpr Tests"){
     /* equals() */
-    
+    CHECK((new FunExpr("x", new AddExpr(new VarExpr("x"), new NumExpr(4))))->equals(new FunExpr("x", new AddExpr(new VarExpr("x"), new NumExpr(4)))));
+    CHECK(!((new FunExpr("x", new AddExpr(new VarExpr("x"), new NumExpr(4))))->equals(new FunExpr("y", new AddExpr(new VarExpr("x"), new NumExpr(4))))));
+    CHECK(!((new FunExpr("x", new AddExpr(new VarExpr("x"), new NumExpr(4))))->equals(new FunExpr("x", new AddExpr(new VarExpr("z"), new NumExpr(4))))));
+    CHECK(!((new FunExpr("x", new AddExpr(new VarExpr("x"), new NumExpr(4))))->equals(new BoolExpr(true))));
     
     /* interp() */
-    
+    CHECK((new FunExpr("x", new AddExpr(new VarExpr("x"), new NumExpr(4))))->interp()->equals(new FunVal("x", new AddExpr(new VarExpr("x"), new NumExpr(4)))));
     
     /* has_variable() */
-    
+    CHECK(!((new FunExpr("x", new AddExpr(new VarExpr("x"), new NumExpr(4))))->has_variable()));
     
     /* subst() */
+    CHECK((new FunExpr("x", new AddExpr(new VarExpr("x"), new VarExpr("y"))))->subst("x", new NumExpr(4))->equals(new AddExpr(new NumExpr(4), new VarExpr("y"))));
+    CHECK((new FunExpr("x", new AddExpr(new VarExpr("x"), new VarExpr("y"))))->subst("y", new NumExpr(4))->equals(new FunExpr("x", new AddExpr(new VarExpr("x"), new NumExpr(4)))));
     
     
     /* print() */
-    
+    {
+        std::stringstream rep_cout ("");
+        (new FunExpr("x", new AddExpr(new VarExpr("x"), new NumExpr(4))))->print(rep_cout);
+        CHECK(rep_cout.str() == "(_fun (x) (x+4))");
+    }
 }
 
 /* CallExpr */
@@ -1506,11 +1534,7 @@ bool CallExpr::has_variable(){
 }
 
 Expr* CallExpr::subst(std::string s, Expr *e){
-    this->actual_arg->subst(s, e);
-    if (this->to_be_called->to_string() == s) {
-        this->to_be_called->subst(s, e);
-    }
-    return this;
+    return new CallExpr(this->to_be_called->subst(s, e), this->actual_arg->subst(s, e));
 }
 
 void CallExpr::print(std::ostream& out){
@@ -1522,17 +1546,30 @@ void CallExpr::print(std::ostream& out){
 
 TEST_CASE("CallExpr Tests"){
     /* equals() */
-    
+    CHECK((new CallExpr(new VarExpr("x"), new MultExpr(new VarExpr("x"), new NumExpr(4))))->equals(new CallExpr(new VarExpr("x"), new MultExpr(new VarExpr("x"), new NumExpr(4)))));
+    CHECK(!((new CallExpr(new VarExpr("x"), new MultExpr(new VarExpr("x"), new NumExpr(4))))->equals(new CallExpr(new VarExpr("y"), new MultExpr(new VarExpr("x"), new NumExpr(4))))));
+    CHECK(!((new CallExpr(new VarExpr("x"), new MultExpr(new VarExpr("x"), new NumExpr(4))))->equals(new CallExpr(new VarExpr("x"), new MultExpr(new VarExpr("y"), new NumExpr(4))))));
+    CHECK(!((new CallExpr(new VarExpr("x"), new MultExpr(new VarExpr("x"), new NumExpr(4))))->equals(new CallExpr(new BoolExpr(true), new MultExpr(new VarExpr("x"), new NumExpr(4))))));
+    CHECK(!((new CallExpr(new VarExpr("x"), new MultExpr(new VarExpr("x"), new NumExpr(4))))->equals(new BoolExpr(true))));
     
     /* interp() */
-    
+    CHECK((new CallExpr(new FunExpr("x", new MultExpr(new VarExpr("x"), new NumExpr(4))), new NumExpr(4)))->interp()->equals(new NumVal(16)));
     
     /* has_variable() */
-    
+    CHECK(!((new CallExpr(new FunExpr("x", new MultExpr(new VarExpr("x"), new NumExpr(4))), new NumExpr(4)))->has_variable()));
     
     /* subst() */
-    
+    CHECK((new CallExpr(new VarExpr("f"), new NumExpr(5)))->subst("f", new FunExpr("x", new AddExpr(new VarExpr("x"), new NumExpr(1))))->equals(new CallExpr(new FunExpr("x", new AddExpr(new VarExpr("x"), new NumExpr(1))), new NumExpr(5))));
+    CHECK((new CallExpr(new VarExpr("x"), new NumExpr(5)))->subst("f", new FunExpr("x", new AddExpr(new VarExpr("x"), new NumExpr(1))))->equals(new CallExpr(new VarExpr("x"), new NumExpr(5))));
+    CHECK((new CallExpr(new VarExpr("x"), new AddExpr(new NumExpr(4), new VarExpr("y"))))->subst("y", new NumExpr(4))->equals(new CallExpr(new VarExpr("x"), new AddExpr(new NumExpr(4),new NumExpr(4)))));
+    FunExpr* functionReturnfunction = new FunExpr("x", new FunExpr("y", new AddExpr(new VarExpr("x"), new VarExpr("y"))));
+    CHECK((new CallExpr(new CallExpr(new VarExpr("f"), new NumExpr(5)), new NumExpr(1)))->subst("f", functionReturnfunction)->equals(new CallExpr(new CallExpr(new FunExpr("x", new FunExpr("y", new AddExpr(new VarExpr("x"), new VarExpr("y")))), new NumExpr(5)), new NumExpr(1))));
     
     /* print() */
+    {
+        std::stringstream rep_cout ("");
+        (new CallExpr(new VarExpr("f"), new NumExpr(4)))->print(rep_cout);
+        CHECK(rep_cout.str() == "f(4)");
+    }
     
 }

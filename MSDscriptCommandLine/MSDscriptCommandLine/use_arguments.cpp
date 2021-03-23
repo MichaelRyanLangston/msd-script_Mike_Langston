@@ -9,6 +9,7 @@
 #include "catch.h"
 #include "use_arguments.hpp"
 #include "expr.hpp"
+#include "val.hpp"
 
 /*
  This function takes commands:
@@ -39,7 +40,8 @@ void use_arguments(const int arraySize, const char* array[]){
     else if ((std::string)array[1] == "--interp"){
         while (true) {
             Expr* e = parse_expr(std::cin);
-            std::cout << e->interp() << std::endl;
+            e->interp()->to_expr()->print(std::cout);
+            std::cout << "\n";
             skip_whitespace(std::cin);
             if (std::cin.eof()) {
                 break;
