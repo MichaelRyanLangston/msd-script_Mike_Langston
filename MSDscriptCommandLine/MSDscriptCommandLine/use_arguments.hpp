@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <string>
+#include "pointermgmt.h"
 
 /*
  This function takes commands:
@@ -18,6 +19,7 @@
  --test => Prints test to the screen. Can only be utilized once.
  Any other commands will result in an error.
  */
+
 void use_arguments(const int arraySize, const char* array[]);
 
 #endif /* use_arguments_hpp */

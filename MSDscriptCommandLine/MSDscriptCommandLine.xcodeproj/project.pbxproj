@@ -36,6 +36,7 @@
 		CACD7E9325B7F7C800098D2C /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		CACD7E9B25B7F82B00098D2C /* use_arguments.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = use_arguments.cpp; sourceTree = "<group>"; };
 		CACD7E9C25B7F82B00098D2C /* use_arguments.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = use_arguments.hpp; sourceTree = "<group>"; };
+		CAD3E46A260A1A3F005CCFF5 /* pointermgmt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pointermgmt.h; sourceTree = "<group>"; };
 		CAEC2ECD25C9AB2500EF989A /* coverageTesting.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = coverageTesting.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CAEC2ECF25C9AB2500EF989A /* coverageTesting.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = coverageTesting.m; sourceTree = "<group>"; };
 		CAEC2ED125C9AB2500EF989A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -85,6 +86,7 @@
 		CACD7E9225B7F7C800098D2C /* MSDscriptCommandLine */ = {
 			isa = PBXGroup;
 			children = (
+				CAD3E46A260A1A3F005CCFF5 /* pointermgmt.h */,
 				CAED112B25BE65DA00E9D2CC /* catch.h */,
 				CACD7E9325B7F7C800098D2C /* main.cpp */,
 				CACD7E9B25B7F82B00098D2C /* use_arguments.cpp */,

@@ -10,18 +10,19 @@
 
 #include <stdio.h>
 #include <string>
+#include "pointermgmt.h"
 
 //Prototypes
 class Expr;
 
 class Val{
 public:
-    virtual bool equals(Val* v) = 0;
-    virtual Expr* to_expr() = 0;
-    virtual Val* add_to(Val* other_val) = 0;
-    virtual Val* mult_by(Val* other_val) = 0;
+    virtual bool equals(PTR(Val) v) = 0;
+    virtual PTR(Expr) to_expr() = 0;
+    virtual PTR(Val) add_to(PTR(Val) other_val) = 0;
+    virtual PTR(Val) mult_by(PTR(Val) other_val) = 0;
     virtual bool is_true() = 0;
-    virtual Val* call(Val* actual_arg) = 0;
+    virtual PTR(Val) call(PTR(Val) actual_arg) = 0;
 };
 
 class NumVal : public Val {
@@ -33,12 +34,12 @@ public:
     NumVal(int rep);
     
     /* Methods */
-    bool equals(Val* v);
-    Expr* to_expr();
-    Val* add_to(Val* other_val);
-    Val* mult_by(Val* other_val);
+    bool equals(PTR(Val) v);
+    PTR(Expr) to_expr();
+    PTR(Val) add_to(PTR(Val) other_val);
+    PTR(Val) mult_by(PTR(Val) other_val);
     bool is_true();
-    Val* call(Val* actual_arg);
+    PTR(Val) call(PTR(Val) actual_arg);
 };
 
 class BoolVal : public Val {
@@ -50,30 +51,30 @@ public:
     BoolVal(bool rep);
     
     /* Methods */
-    bool equals(Val* v);
-    Expr* to_expr();
-    Val* add_to(Val* other_val);
-    Val* mult_by(Val* other_val);
+    bool equals(PTR(Val) v);
+    PTR(Expr) to_expr();
+    PTR(Val) add_to(PTR(Val) other_val);
+    PTR(Val) mult_by(PTR(Val) other_val);
     bool is_true();
-    Val* call(Val* actual_arg);
+    PTR(Val) call(PTR(Val) actual_arg);
 };
 
 class FunVal : public Val {
 public:
     /* Member Variables */
     std::string formal_arg;
-    Expr* body;
+    PTR(Expr) body;
     
     /* Default Constructor */
-    FunVal(std::string formal_arg, Expr* body);
+    FunVal(std::string formal_arg, PTR(Expr) body);
     
     /* Methods */
-    bool equals(Val* v);
-    Expr* to_expr();
-    Val* add_to(Val* other_val);
-    Val* mult_by(Val* other_val);
+    bool equals(PTR(Val) v);
+    PTR(Expr) to_expr();
+    PTR(Val) add_to(PTR(Val) other_val);
+    PTR(Val) mult_by(PTR(Val) other_val);
     bool is_true();
-    Val* call(Val* actual_arg);
+    PTR(Val) call(PTR(Val) actual_arg);
 };
 
 #endif /* val_hpp */

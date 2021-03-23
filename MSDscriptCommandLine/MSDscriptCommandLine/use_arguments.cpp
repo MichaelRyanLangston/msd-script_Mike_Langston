@@ -39,7 +39,7 @@ void use_arguments(const int arraySize, const char* array[]){
     }
     else if ((std::string)array[1] == "--interp"){
         while (true) {
-            Expr* e = parse_expr(std::cin);
+            PTR(Expr) e = parse_expr(std::cin);
             e->interp()->to_expr()->print(std::cout);
             std::cout << "\n";
             skip_whitespace(std::cin);
@@ -51,7 +51,7 @@ void use_arguments(const int arraySize, const char* array[]){
     }
     else if ((std::string)array[1] == "--print"){
         while (true) {
-            Expr* e = parse_expr(std::cin);
+            PTR(Expr) e = parse_expr(std::cin);
             e->print(std::cout);
             std::cout << std::endl;
             skip_whitespace(std::cin);
