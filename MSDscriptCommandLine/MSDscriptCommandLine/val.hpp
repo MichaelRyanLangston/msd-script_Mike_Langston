@@ -15,7 +15,7 @@
 //Prototypes
 class Expr;
 
-class Val{
+CLASS(Val){
 public:
     virtual bool equals(PTR(Val) v) = 0;
     virtual PTR(Expr) to_expr() = 0;
@@ -23,6 +23,9 @@ public:
     virtual PTR(Val) mult_by(PTR(Val) other_val) = 0;
     virtual bool is_true() = 0;
     virtual PTR(Val) call(PTR(Val) actual_arg) = 0;
+    
+    /* Destructor */
+    virtual ~Val(){}
 };
 
 class NumVal : public Val {

@@ -541,7 +541,7 @@ bool NumExpr::has_variable(){
 }
 
 PTR(Expr) NumExpr::subst(std::string s, PTR(Expr)e){
-    return this;
+    return THIS;
 }
 
 void NumExpr::print(std::ostream& out){
@@ -974,7 +974,7 @@ PTR(Expr) VarExpr::subst(std::string s, PTR(Expr)e){
     if(this->var == s)
         return e;
     else
-        return this;
+        return THIS;
 }
 
 void VarExpr::print(std::ostream& out){
@@ -1237,7 +1237,7 @@ bool BoolExpr::has_variable(){
 }
 
 PTR(Expr) BoolExpr::subst(std::string s, PTR(Expr)e){
-    return this;
+    return THIS;
 }
 
 void BoolExpr::print(std::ostream& out){

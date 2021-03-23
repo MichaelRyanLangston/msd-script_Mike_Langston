@@ -14,7 +14,7 @@
 #include "pointermgmt.h"
 
 //Prototypes
-CLASS(Val);
+class Val;
 
 //Expr acts as a Java Interface, so it is meant to be implemented by other classes or rather sub-classes since C++ doesn't have a notion of an interface.
 CLASS(Expr) {
@@ -30,6 +30,9 @@ public:
     
     //Methods
     std::string to_string();
+    
+    /* Destructor */
+    virtual ~Expr(){}
     
     /*Depricated*/
     //    void pretty_print(std::ostream& out);
@@ -69,7 +72,7 @@ PTR(Expr) parse_inner(std::istream &to_Parse);
 
 
 
-CLASS(NumExpr) : public Expr {
+class NumExpr : public Expr {
 public:
     //Member Variables
     int rep;
@@ -88,7 +91,7 @@ public:
 
 
 
-CLASS(AddExpr) : public Expr {
+class AddExpr : public Expr {
 public:
     //Member Variables
     PTR(Expr)lhs;
@@ -108,7 +111,7 @@ public:
 
 
 
-CLASS(MultExpr) : public Expr {
+class MultExpr : public Expr {
 public:
     //Member Variables
     PTR(Expr) lhs;
@@ -128,7 +131,7 @@ public:
 
 
 
-CLASS(VarExpr) : public Expr {
+class VarExpr : public Expr {
 public:
     std::string var;
     
@@ -146,7 +149,7 @@ public:
 
 
 
-CLASS(LetExpr) : public Expr {
+class LetExpr : public Expr {
 public:
     std::string lhs_name;
     PTR(Expr)rhs;
@@ -163,7 +166,7 @@ public:
     void print(std::ostream& out);
 };
 
-CLASS(BoolExpr) : public Expr {
+class BoolExpr : public Expr {
 public:
     //Member Variables
     bool rep;
@@ -179,7 +182,7 @@ public:
     void print(std::ostream& out);
 };
 
-CLASS(EqExpr) : public Expr {
+class EqExpr : public Expr {
 public:
     //Member Variables
     PTR(Expr) lhs;
@@ -196,7 +199,7 @@ public:
     void print(std::ostream& out);
 };
 
-CLASS(IfExpr) : public Expr {
+class IfExpr : public Expr {
 public:
     //Member Variables
     PTR(Expr) comparison;
@@ -214,7 +217,7 @@ public:
     void print(std::ostream& out);
 };
 
-CLASS(FunExpr) : public Expr {
+class FunExpr : public Expr {
 public:
     //Member Variables
     std::string formal_arg;
@@ -231,7 +234,7 @@ public:
     void print(std::ostream& out);
 };
 
-CLASS(CallExpr) : public Expr {
+class CallExpr : public Expr {
 public:
     //Member Variables
     PTR(Expr) to_be_called;
