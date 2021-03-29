@@ -46,11 +46,11 @@ PTR(Val) NumVal::mult_by(PTR(Val) other_val){
 }
 
 bool NumVal::is_true(){
-    throw std::runtime_error("Non-BoolVal object detected.");
+    throw std::runtime_error("NumVal object detected. Cannot check for _true condition.");
 }
 
 PTR(Val) NumVal::call(PTR(Val) actual_arg){
-    throw std::runtime_error("Non-FunVal object detected.");
+    throw std::runtime_error("NumVal object detected. Cannot perform a call.");
 }
 
 
@@ -74,10 +74,10 @@ TEST_CASE("NumVal Tests"){
     CHECK_THROWS_WITH((NEW(NumVal)(4))->mult_by(NEW(BoolVal)(true)), "Non-NumVal object detected. Cannot perform multiplication.");
     
     /* is_true() */
-    CHECK_THROWS_WITH((NEW(NumVal)(4))->is_true(), "Non-BoolVal object detected.");
+    CHECK_THROWS_WITH((NEW(NumVal)(4))->is_true(), "NumVal object detected. Cannot check for _true condition.");
     
     /* call() */
-    CHECK_THROWS_WITH((NEW(NumVal)(4))->call(NEW(NumVal)(4)), "Non-FunVal object detected.");
+    CHECK_THROWS_WITH((NEW(NumVal)(4))->call(NEW(NumVal)(4)), "NumVal object detected. Cannot perform a call.");
 }
 
 
@@ -104,11 +104,11 @@ PTR(Expr) BoolVal::to_expr(){
 }
 
 PTR(Val) BoolVal::add_to(PTR(Val) other_val){
-    throw std::runtime_error("Non-NumVal object detected. Cannot perform addition.");
+    throw std::runtime_error("BoolVal object detected. Cannot perform addition.");
 }
 
 PTR(Val) BoolVal::mult_by(PTR(Val) other_val){
-    throw std::runtime_error("Non-NumVal object detected. Cannot perform multiplication.");
+    throw std::runtime_error("BoolVal object detected. Cannot perform multiplication.");
 }
 
 bool BoolVal::is_true(){
@@ -116,7 +116,7 @@ bool BoolVal::is_true(){
 }
 
 PTR(Val) BoolVal::call(PTR(Val) actual_arg){
-    throw std::runtime_error("Non-FunVal object detected.");
+    throw std::runtime_error("BoolVal object detected. Cannot perform a call.");
 }
 
 TEST_CASE("BoolVal Tests"){
@@ -130,17 +130,17 @@ TEST_CASE("BoolVal Tests"){
     CHECK((NEW(BoolVal)(false))->to_expr()->equals(NEW(BoolExpr)(false)));
     
     /* add_to() */
-    CHECK_THROWS_WITH((NEW(BoolVal)(true))->add_to(NEW(NumVal)(false)), "Non-NumVal object detected. Cannot perform addition.");
+    CHECK_THROWS_WITH((NEW(BoolVal)(true))->add_to(NEW(NumVal)(false)), "BoolVal object detected. Cannot perform addition.");
     
     /* mult_by() */
-    CHECK_THROWS_WITH((NEW(BoolVal)(true))->mult_by(NEW(NumVal)(false)),"Non-NumVal object detected. Cannot perform multiplication.");
+    CHECK_THROWS_WITH((NEW(BoolVal)(true))->mult_by(NEW(NumVal)(false)),"BoolVal object detected. Cannot perform multiplication.");
     
     /* is_true() */
     CHECK((NEW(BoolVal)(true))->is_true());
     CHECK(!((NEW(BoolVal)(false))->is_true()));
     
     /* call() */
-    CHECK_THROWS_WITH((NEW(BoolVal)(true))->call(NEW(BoolVal)(true)), "Non-FunVal object detected.");
+    CHECK_THROWS_WITH((NEW(BoolVal)(true))->call(NEW(BoolVal)(true)), "BoolVal object detected. Cannot perform a call.");
 }
 
 
@@ -168,15 +168,15 @@ PTR(Expr) FunVal::to_expr(){
 }
 
 PTR(Val) FunVal::add_to(PTR(Val) other_val){
-    throw std::runtime_error("Non-NumVal object detected. Cannot perform addition.");
+    throw std::runtime_error("FunVal object detected. Cannot perform addition.");
 }
 
 PTR(Val) FunVal::mult_by(PTR(Val) other_val){
-    throw std::runtime_error("Non-NumVal object detected. Cannot perform multiplication.");
+    throw std::runtime_error("FunVal object detected. Cannot perform multiplication.");
 }
 
 bool FunVal::is_true(){
-    throw std::runtime_error("Non-BoolVal object detected.");
+    throw std::runtime_error("FunVal object detected. Cannot check for _true condition.");
 }
 
 PTR(Val) FunVal::call(PTR(Val) actual_arg){
@@ -193,17 +193,15 @@ TEST_CASE("FunVal Tests"){
     CHECK((NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))))->to_expr()->equals(NEW(FunExpr)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4)))));
     
     /* add_to() */
-    CHECK_THROWS_WITH((NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))))->add_to(NEW(BoolVal)(true)), "Non-NumVal object detected. Cannot perform addition.");
+    CHECK_THROWS_WITH((NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))))->add_to(NEW(BoolVal)(true)), "FunVal object detected. Cannot perform addition.");
     
     /* mult_by() */
-    CHECK_THROWS_WITH((NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))))->mult_by(NEW(BoolVal)(true)), "Non-NumVal object detected. Cannot perform multiplication.");
+    CHECK_THROWS_WITH((NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))))->mult_by(NEW(BoolVal)(true)), "FunVal object detected. Cannot perform multiplication.");
     /* is_true() */
-    CHECK_THROWS_WITH((NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))))->is_true(), "Non-BoolVal object detected.");
+    CHECK_THROWS_WITH((NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))))->is_true(), "FunVal object detected. Cannot check for _true condition.");
     
     /* call() */
     CHECK((NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))))->call(NEW(NumVal)(4))->equals(NEW(NumVal)(8)));
-    CHECK_THROWS_WITH((NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))))->call(NEW(BoolVal)(true)), "Non-NumVal object detected. Cannot perform addition.");
+    CHECK_THROWS_WITH((NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))))->call(NEW(BoolVal)(true)), "BoolVal object detected. Cannot perform addition.");
     CHECK((NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))))->call((NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))))->call(NEW(NumVal)(3)))->equals(NEW(NumVal)(11)));
-    
-    CHECK((NEW(FunVal)("x", NEW(FunExpr)("y", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(VarExpr)("y")))))->call(NEW(NumVal)(5))->equals((NEW(FunExpr)("y", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(VarExpr)("y"))))->interp()));
 }

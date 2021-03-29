@@ -504,13 +504,6 @@ TEST_CASE("parse inner"){
         std::stringstream testing ("_false");
         CHECK(parse_inner(testing)->equals(NEW(BoolExpr)(false)));
     }
-    
-//    _let factrl = _fun (factrl)
-//                    _fun (x)
-//                      _if x == 1
-//                      _then 1
-//                      _else x * factrl(factrl)(x + -1)
-//    _in  factrl(factrl)(10)
 }
 
 
@@ -1474,7 +1467,7 @@ PTR(Expr) FunExpr::subst(std::string s, PTR(Expr) e){
     if(this->formal_arg != s){
         return NEW(FunExpr)(this->formal_arg, this->body->subst(s, e));
     }
-    return this->body->subst(this->formal_arg, e);
+    return NEW(FunExpr)(this->formal_arg, this->body);
 }
 
 void FunExpr::print(std::ostream& out){
@@ -1497,10 +1490,18 @@ TEST_CASE("FunExpr Tests"){
     CHECK(!((NEW(FunExpr)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))))->has_variable()));
     
     /* subst() */
-    CHECK((NEW(FunExpr)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(VarExpr)("y"))))->subst("x", NEW(NumExpr)(4))->equals(NEW(AddExpr)(NEW(NumExpr)(4), NEW(VarExpr)("y"))));
+    //_fun(x) x + y->subst(x, 4) == _fun(x) x + y
+    CHECK((NEW(FunExpr)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(VarExpr)("y"))))->subst("x", NEW(NumExpr)(4))->equals(NEW(FunExpr)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(VarExpr)("y")))));
+    //_fun(x) x + y->subst(y, 4) == _fun(x) x + 4
     CHECK((NEW(FunExpr)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(VarExpr)("y"))))->subst("y", NEW(NumExpr)(4))->equals(NEW(FunExpr)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4)))));
     
-    
+//        _let factrl = _fun (factrl)
+//                        _fun (x)
+//                          _if x == 1
+//                          _then 1
+//                          _else x * factrl(factrl)(x + -1)
+//        _in  factrl(factrl)(10)
+
     /* print() */
     {
         std::stringstream rep_cout ("");
@@ -1534,6 +1535,7 @@ bool CallExpr::has_variable(){
 }
 
 PTR(Expr) CallExpr::subst(std::string s, PTR(Expr)e){
+    //interp before subst
     return NEW(CallExpr)(this->to_be_called->subst(s, e), this->actual_arg->subst(s, e));
 }
 
@@ -1554,6 +1556,9 @@ TEST_CASE("CallExpr Tests"){
     
     /* interp() */
     CHECK((NEW(CallExpr)(NEW(FunExpr)("x", NEW(MultExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))), NEW(NumExpr)(4)))->interp()->equals(NEW(NumVal)(16)));
+    
+    // (_fun(x) (_fun(x) x + 1)(2) + x)(5)
+    CHECK((NEW(CallExpr)(NEW(FunExpr)("x", NEW(AddExpr)(NEW(CallExpr)(NEW(FunExpr)("x", NEW(AddExpr)(NEW(VarExpr)("x"),NEW(NumExpr)(1))),NEW(NumExpr)(2)), NEW(VarExpr)("x"))), NEW(NumExpr)(5)))->interp()->equals(NEW(NumVal)(8)));
     
     /* has_variable() */
     CHECK(!((NEW(CallExpr)(NEW(FunExpr)("x", NEW(MultExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))), NEW(NumExpr)(4)))->has_variable()));
