@@ -7,10 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CA11466526128DDB00FADBFE /* parse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CA11466326128DDA00FADBFE /* parse.cpp */; };
+		CA11466626128DDB00FADBFE /* parse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CA11466326128DDA00FADBFE /* parse.cpp */; };
+		CA8FB44A2612957C00484726 /* env.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CA8FB4482612957C00484726 /* env.cpp */; };
+		CA8FB44B2612957C00484726 /* env.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CA8FB4482612957C00484726 /* env.cpp */; };
 		CA9D8A8A25EDCF77001FC89F /* val.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CA9D8A8825EDCF77001FC89F /* val.cpp */; };
 		CA9D8A8B25EDCF77001FC89F /* val.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CA9D8A8825EDCF77001FC89F /* val.cpp */; };
 		CACD7E9425B7F7C800098D2C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CACD7E9325B7F7C800098D2C /* main.cpp */; };
-		CACD7E9D25B7F82B00098D2C /* use_arguments.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CACD7E9B25B7F82B00098D2C /* use_arguments.cpp */; };
 		CAEC2ED025C9AB2500EF989A /* coverageTesting.m in Sources */ = {isa = PBXBuildFile; fileRef = CAEC2ECF25C9AB2500EF989A /* coverageTesting.m */; };
 		CAEC2ED725C9AB8600EF989A /* expr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CAED112C25BE67F000E9D2CC /* expr.cpp */; };
 		CAEC2EDD25C9AD7000EF989A /* run.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CAEC2EDB25C9AD7000EF989A /* run.cpp */; };
@@ -30,12 +33,14 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		CA11466326128DDA00FADBFE /* parse.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = parse.cpp; sourceTree = "<group>"; };
+		CA11466426128DDB00FADBFE /* parse.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = parse.hpp; sourceTree = "<group>"; };
+		CA8FB4482612957C00484726 /* env.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = env.cpp; sourceTree = "<group>"; };
+		CA8FB4492612957C00484726 /* env.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = env.hpp; sourceTree = "<group>"; };
 		CA9D8A8825EDCF77001FC89F /* val.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = val.cpp; sourceTree = "<group>"; };
 		CA9D8A8925EDCF77001FC89F /* val.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = val.hpp; sourceTree = "<group>"; };
 		CACD7E9025B7F7C800098D2C /* MSDscriptCommandLine */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MSDscriptCommandLine; sourceTree = BUILT_PRODUCTS_DIR; };
 		CACD7E9325B7F7C800098D2C /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		CACD7E9B25B7F82B00098D2C /* use_arguments.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = use_arguments.cpp; sourceTree = "<group>"; };
-		CACD7E9C25B7F82B00098D2C /* use_arguments.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = use_arguments.hpp; sourceTree = "<group>"; };
 		CAD3E46A260A1A3F005CCFF5 /* pointermgmt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pointermgmt.h; sourceTree = "<group>"; };
 		CAEC2ECD25C9AB2500EF989A /* coverageTesting.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = coverageTesting.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CAEC2ECF25C9AB2500EF989A /* coverageTesting.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = coverageTesting.m; sourceTree = "<group>"; };
@@ -86,15 +91,17 @@
 		CACD7E9225B7F7C800098D2C /* MSDscriptCommandLine */ = {
 			isa = PBXGroup;
 			children = (
-				CAD3E46A260A1A3F005CCFF5 /* pointermgmt.h */,
-				CAED112B25BE65DA00E9D2CC /* catch.h */,
 				CACD7E9325B7F7C800098D2C /* main.cpp */,
-				CACD7E9B25B7F82B00098D2C /* use_arguments.cpp */,
-				CACD7E9C25B7F82B00098D2C /* use_arguments.hpp */,
+				CAED112B25BE65DA00E9D2CC /* catch.h */,
+				CAD3E46A260A1A3F005CCFF5 /* pointermgmt.h */,
+				CA11466326128DDA00FADBFE /* parse.cpp */,
+				CA11466426128DDB00FADBFE /* parse.hpp */,
 				CAED112C25BE67F000E9D2CC /* expr.cpp */,
 				CAED112D25BE67F000E9D2CC /* expr.hpp */,
 				CA9D8A8825EDCF77001FC89F /* val.cpp */,
 				CA9D8A8925EDCF77001FC89F /* val.hpp */,
+				CA8FB4482612957C00484726 /* env.cpp */,
+				CA8FB4492612957C00484726 /* env.hpp */,
 			);
 			path = MSDscriptCommandLine;
 			sourceTree = "<group>";
@@ -197,9 +204,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CACD7E9D25B7F82B00098D2C /* use_arguments.cpp in Sources */,
+				CA11466526128DDB00FADBFE /* parse.cpp in Sources */,
 				CACD7E9425B7F7C800098D2C /* main.cpp in Sources */,
 				CAED112E25BE67F000E9D2CC /* expr.cpp in Sources */,
+				CA8FB44A2612957C00484726 /* env.cpp in Sources */,
 				CA9D8A8A25EDCF77001FC89F /* val.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -208,8 +216,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CA11466626128DDB00FADBFE /* parse.cpp in Sources */,
 				CAEC2EDD25C9AD7000EF989A /* run.cpp in Sources */,
 				CAEC2ED725C9AB8600EF989A /* expr.cpp in Sources */,
+				CA8FB44B2612957C00484726 /* env.cpp in Sources */,
 				CAEC2ED025C9AB2500EF989A /* coverageTesting.m in Sources */,
 				CA9D8A8B25EDCF77001FC89F /* val.cpp in Sources */,
 			);

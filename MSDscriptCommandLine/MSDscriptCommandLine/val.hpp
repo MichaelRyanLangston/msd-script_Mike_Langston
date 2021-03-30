@@ -12,17 +12,20 @@
 #include <string>
 #include "pointermgmt.h"
 
+
 //Prototypes
 class Expr;
+class Env;
 
 CLASS(Val){
 public:
+    /* Override Methods */
     virtual bool equals(PTR(Val) v) = 0;
-    virtual PTR(Expr) to_expr() = 0;
     virtual PTR(Val) add_to(PTR(Val) other_val) = 0;
     virtual PTR(Val) mult_by(PTR(Val) other_val) = 0;
     virtual bool is_true() = 0;
     virtual PTR(Val) call(PTR(Val) actual_arg) = 0;
+    virtual std::string make_string() = 0;
     
     /* Destructor */
     virtual ~Val(){}
@@ -38,11 +41,11 @@ public:
     
     /* Methods */
     bool equals(PTR(Val) v);
-    PTR(Expr) to_expr();
     PTR(Val) add_to(PTR(Val) other_val);
     PTR(Val) mult_by(PTR(Val) other_val);
     bool is_true();
     PTR(Val) call(PTR(Val) actual_arg);
+    std::string make_string();
 };
 
 class BoolVal : public Val {
@@ -55,11 +58,11 @@ public:
     
     /* Methods */
     bool equals(PTR(Val) v);
-    PTR(Expr) to_expr();
     PTR(Val) add_to(PTR(Val) other_val);
     PTR(Val) mult_by(PTR(Val) other_val);
     bool is_true();
     PTR(Val) call(PTR(Val) actual_arg);
+    std::string make_string();
 };
 
 class FunVal : public Val {
@@ -67,17 +70,18 @@ public:
     /* Member Variables */
     std::string formal_arg;
     PTR(Expr) body;
+    PTR(Env) env;
     
     /* Default Constructor */
-    FunVal(std::string formal_arg, PTR(Expr) body);
+    FunVal(std::string formal_arg, PTR(Expr) body, PTR(Env) env);
     
     /* Methods */
     bool equals(PTR(Val) v);
-    PTR(Expr) to_expr();
     PTR(Val) add_to(PTR(Val) other_val);
     PTR(Val) mult_by(PTR(Val) other_val);
     bool is_true();
     PTR(Val) call(PTR(Val) actual_arg);
+    std::string make_string();
 };
 
 #endif /* val_hpp */
