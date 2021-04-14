@@ -6,11 +6,7 @@
 //
 
 #include "val.hpp"
-#include "expr.hpp"
-#include "env.hpp"
-#include "catch.h"
-#include <sstream>
-#include <string>
+
 
 /* NumVal Implementation */
 //Default Constructor
@@ -32,6 +28,17 @@ PTR(Val) NumVal::add_to(PTR(Val) other_val){
     PTR(NumVal) other_num = CAST(NumVal)(other_val);
     if(other_num == NULL)
         throw std::runtime_error("Non-NumVal object detected. Cannot perform addition.");
+    //Below Checks to see if overflow is occuring...
+    if (this->rep >= 0 && other_num->rep >= 0){
+        if (this->rep + other_num->rep < 0){
+            throw std::runtime_error("This number cannot be represented by the backing type 'int' becasue it causes memory overflow...");
+        }
+    }
+    else if (this->rep < 0 && other_num->rep < 0){
+        if (this->rep + other_num->rep >= 0){
+            throw std::runtime_error("This number cannot be represented by the backing type 'int' becasue it causes memory overflow...");
+        }
+    }
     return NEW(NumVal)(this->rep + other_num->rep);
 }
 
@@ -39,6 +46,14 @@ PTR(Val) NumVal::mult_by(PTR(Val) other_val){
     PTR(NumVal) other_num = CAST(NumVal)(other_val);
     if(other_num == NULL)
         throw std::runtime_error("Non-NumVal object detected. Cannot perform multiplication.");
+    
+    /* The __builtin_mul_overflow() takes the first two areguments and casts them to infinate precision signed type, mutiplies them, stores it in the pointer and identifies if result is equal to the casted value
+     Source:https://gcc.gnu.org/onlinedocs/gcc/Integer-Overflow-Builtins.html
+     Source:https://stackoverflow.com/questions/38625857/using-the-builtin-function-builtin-add-overflow-p-in-gcc
+     */
+//    int* y = 0;//This is a type checker, so the initial value doesn't matter.
+//    if (__builtin_mul_overflow(this->rep,other_num->rep,y))
+//        throw std::runtime_error("This number cannot be represented by the backing type 'int' becasue it causes memory overflow...");
     return NEW(NumVal)(this->rep * other_num->rep);
 }
 
@@ -47,6 +62,10 @@ bool NumVal::is_true(){
 }
 
 PTR(Val) NumVal::call(PTR(Val) actual_arg){
+    throw std::runtime_error("NumVal object detected. Cannot perform a call.");
+}
+
+void NumVal::call_step(PTR(Val) actual_arg_val, PTR(Cont) rest){
     throw std::runtime_error("NumVal object detected. Cannot perform a call.");
 }
 
@@ -112,10 +131,14 @@ PTR(Val) BoolVal::call(PTR(Val) actual_arg){
     throw std::runtime_error("BoolVal object detected. Cannot perform a call.");
 }
 
+void BoolVal::call_step(PTR(Val) actual_arg_val, PTR(Cont) rest){
+    throw std::runtime_error("BoolVal object detected. Cannot perform a call.");
+}
+
 std::string BoolVal::make_string(){
     if(rep)
         return "_true";
-    return "false";
+    return "_false";
 }
 
 TEST_CASE("BoolVal Tests"){
@@ -173,6 +196,13 @@ bool FunVal::is_true(){
 
 PTR(Val) FunVal::call(PTR(Val) actual_arg){
     return body->interp(NEW(ExtendedEnv)(formal_arg, actual_arg, env));
+}
+
+void FunVal::call_step(PTR(Val) actual_arg_val, PTR(Cont) rest){
+    Step::mode = Step::interp_mode;
+    Step::expr = body;
+    Step::env = NEW(ExtendedEnv) (formal_arg, actual_arg_val, env);
+    Step::cont = rest;
 }
 
 std::string FunVal::make_string(){

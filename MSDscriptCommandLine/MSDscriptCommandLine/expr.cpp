@@ -6,12 +6,7 @@
 //
 
 #include "expr.hpp"
-#include "val.hpp"
-#include "env.hpp"
-#include "catch.h"
-#include <stdexcept>
-#include <sstream>
-#include <iostream>
+
 
 //        _let factrl = _fun (factrl)
 //                        _fun (x)
@@ -58,6 +53,12 @@ PTR(Val) NumExpr::interp(PTR(Env) env){
     return NEW(NumVal)(this->rep);
 }
 
+void NumExpr::step_interp(){
+    Step::mode = Step::continue_mode;
+    Step::val = NEW(NumVal) (this->rep);
+    Step::cont = Step::cont;
+}
+
 void NumExpr::print(std::ostream& out){
     out << this->rep;
 }
@@ -71,7 +72,7 @@ TEST_CASE("Num"){
     /* equals() */
     CHECK((NEW(NumExpr)(1))->equals(NEW(NumExpr)(1)));
     CHECK(!((NEW(NumExpr)(1))->equals(NEW(NumExpr)(2))));
-    CHECK(!((NEW(NumExpr)(1))->equals(NEW(NumExpr)(2))));
+    CHECK(!((NEW(NumExpr)(1))->equals(NEW(BoolExpr)(false))));
     
     /* interp() */
     CHECK((NEW(NumExpr)(1))->interp(EmptyEnv::empty)->equals(NEW(NumVal)(1)));
@@ -110,6 +111,13 @@ bool AddExpr::equals(PTR(Expr)e){
 
 PTR(Val) AddExpr::interp(PTR(Env) env){
     return lhs->interp(env)->add_to(rhs->interp(env));
+}
+
+void AddExpr::step_interp(){
+    Step::mode = Step::interp_mode;
+    Step::expr = lhs;
+    Step::env = Step::env;
+    Step::cont = NEW(RightThenAddCont) (rhs, Step::env, Step::cont);
 }
 
 void AddExpr::print(std::ostream& out){
@@ -247,6 +255,13 @@ bool MultExpr::equals(PTR(Expr)e){
 
 PTR(Val) MultExpr::interp(PTR(Env) env){
     return this->lhs->interp(env)->mult_by(this->rhs->interp(env));
+}
+
+void MultExpr::step_interp(){
+    Step::mode = Step::interp_mode;
+    Step::expr = lhs;
+    Step::env = Step::env;
+    Step::cont = NEW(RightThenMultCont) (rhs, Step::env, Step::cont);
 }
 
 void MultExpr::print(std::ostream& out){
@@ -387,6 +402,12 @@ PTR(Val) VarExpr::interp(PTR(Env) env){
     return env->lookup(var);
 }
 
+void VarExpr::step_interp(){
+    Step::mode = Step::continue_mode;
+    Step::val = Step::env->lookup(var);
+    Step::cont = Step::cont;
+}
+
 void VarExpr::print(std::ostream& out){
     out << this->var;
 }
@@ -463,6 +484,13 @@ bool LetExpr::equals(PTR(Expr)e){
 
 PTR(Val) LetExpr::interp(PTR(Env) env){
     return body->interp(NEW(ExtendedEnv)(lhs_name, rhs->interp(env), env));
+}
+
+void LetExpr::step_interp(){
+    Step::mode = Step::interp_mode;
+    Step::expr = rhs;
+    Step::env = Step::env;
+    Step::cont = NEW(LetBodyCont) (lhs_name, body, Step::env, Step::cont);
 }
 
 void LetExpr::print(std::ostream& out){
@@ -557,6 +585,12 @@ PTR(Val) BoolExpr::interp(PTR(Env) env){
     return NEW(BoolVal)(this->rep);
 }
 
+void BoolExpr::step_interp(){
+    Step::mode = Step::continue_mode;
+    Step::val = NEW(BoolVal)(this->rep);
+    Step::cont = Step::cont;
+}
+
 void BoolExpr::print(std::ostream& out){
     if (this->rep)
         out << "_true";
@@ -612,6 +646,13 @@ PTR(Val) EqExpr::interp(PTR(Env) env){
         return NEW(BoolVal)(true);
     else
         return NEW(BoolVal)(false);
+}
+
+void EqExpr::step_interp(){
+    Step::mode = Step::interp_mode;
+    Step::expr = lhs;
+    Step::env = Step::env;
+    Step::cont = NEW(RightThenEqCont) (rhs, Step::env, Step::cont);
 }
 
 void EqExpr::print(std::ostream& out){
@@ -670,6 +711,13 @@ PTR(Val) IfExpr::interp(PTR(Env) env){
         return this->if_true->interp(env);
     else
         return this->if_false->interp(env);
+}
+
+void IfExpr::step_interp(){
+    Step::mode = Step::interp_mode;
+    Step::expr = this->comparison;
+    Step::env = Step::env;
+    Step::cont = NEW(IfBranchCont) (this->if_true, this->if_false, Step::env, Step::cont);
 }
 
 void IfExpr::print(std::ostream& out){
@@ -732,6 +780,12 @@ PTR(Val) FunExpr::interp(PTR(Env) env){
     return NEW(FunVal)(formal_arg, body, env);
 }
 
+void FunExpr::step_interp(){
+    Step::mode = Step::continue_mode;
+    Step::val = NEW(FunVal)(formal_arg, body, Step::env);
+    Step::cont = Step::cont;
+}
+
 void FunExpr::print(std::ostream& out){
     out << "(_fun (" + this->formal_arg + ") ";
     this->body->print(out);
@@ -774,6 +828,12 @@ bool CallExpr::equals(PTR(Expr)e){
 
 PTR(Val) CallExpr::interp(PTR(Env) env){
     return to_be_called->interp(env)->call(actual_arg->interp(env));
+}
+
+void CallExpr::step_interp(){
+    Step::mode = Step::interp_mode;
+    Step::expr = to_be_called;
+    Step::cont = NEW(ArgThenCallCont) (actual_arg, Step::env, Step::cont);
 }
 
 void CallExpr::print(std::ostream& out){

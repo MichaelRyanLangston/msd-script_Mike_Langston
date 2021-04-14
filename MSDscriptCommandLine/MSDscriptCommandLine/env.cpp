@@ -6,7 +6,7 @@
 //
 
 #include "env.hpp"
-#include <sstream>
+
 
 /* Env */
 PTR(Env) Env::empty = NEW(EmptyEnv)();

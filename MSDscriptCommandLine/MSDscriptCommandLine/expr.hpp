@@ -11,12 +11,23 @@
 #include <stdio.h>
 #include <string>
 #include <iostream>
+#include <stdexcept>
+#include <sstream>
+#include <iostream>
 #include "pointermgmt.h"
+#include "val.hpp"
+#include "env.hpp"
+#include "catch.h"
+#include "step.hpp"
+#include "continue.hpp"
 
 
 //Prototypes
 class Val;
 class Env;
+class Step;
+class Cont;
+
 
 //Expr acts as a Java Interface, so it is meant to be implemented by other classes or rather sub-classes since C++ doesn't have a notion of an interface.
 CLASS(Expr) {
@@ -25,7 +36,9 @@ public:
     // = 0 syntax means that each subclass must override it.
     virtual bool equals(PTR(Expr) e) = 0;
     virtual PTR(Val) interp(PTR(Env) env) = 0;
+    virtual void step_interp() = 0;
     virtual void print(std::ostream& out) = 0;
+    
     
     //Methods
     std::string to_string();
@@ -46,6 +59,7 @@ public:
     //Methods
     bool equals(PTR(Expr)e);
     PTR(Val) interp(PTR(Env) env);
+    void step_interp();
     void print(std::ostream& out);
 };
 
@@ -61,6 +75,7 @@ public:
     //Methods
     bool equals(PTR(Expr)e);
     PTR(Val) interp(PTR(Env) env);
+    void step_interp();
     void print(std::ostream& out);
 };
 
@@ -76,6 +91,7 @@ public:
     //Methods
     bool equals(PTR(Expr)e);
     PTR(Val) interp(PTR(Env) env);
+    void step_interp();
     void print(std::ostream& out);
 };
 
@@ -89,6 +105,7 @@ public:
     //Methods
     bool equals(PTR(Expr)e);
     PTR(Val) interp(PTR(Env) env);
+    void step_interp();
     void print(std::ostream& out);
 };
 
@@ -104,6 +121,7 @@ public:
     //Methods
     bool equals(PTR(Expr)e);
     PTR(Val) interp(PTR(Env) env);
+    void step_interp();
     void print(std::ostream& out);
 };
 
@@ -118,6 +136,7 @@ public:
     //Methods
     bool equals(PTR(Expr)e);
     PTR(Val) interp(PTR(Env) env);
+    void step_interp();
     void print(std::ostream& out);
 };
 
@@ -133,6 +152,7 @@ public:
     //Methods
     bool equals(PTR(Expr)e);
     PTR(Val) interp(PTR(Env) env);
+    void step_interp();
     void print(std::ostream& out);
 };
 
@@ -149,6 +169,7 @@ public:
     //Methods
     bool equals(PTR(Expr)e);
     PTR(Val) interp(PTR(Env) env);
+    void step_interp();
     void print(std::ostream& out);
 };
 
@@ -164,6 +185,7 @@ public:
     //Methods
     bool equals(PTR(Expr) e);
     PTR(Val) interp(PTR(Env) env);
+    void step_interp();
     void print(std::ostream& out);
 };
 
@@ -179,6 +201,7 @@ public:
     //Methods
     bool equals(PTR(Expr)e);
     PTR(Val) interp(PTR(Env) env);
+    void step_interp();
     void print(std::ostream& out);
 };
 

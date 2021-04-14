@@ -9,19 +9,23 @@
 #define env_hpp
 
 #include <stdio.h>
-#include "pointermgmt.h"
 #include <string>
+#include <sstream>
+#include "pointermgmt.h"
+
 
 //Prototypes
 class Expr;
 class Val;
+class Step;
+class Cont;
 
 CLASS(Env){
 public:
     /* Override Methods */
     virtual PTR(Val) lookup(std::string find_name) = 0;
     
-    /* Static Variables */
+    /* Global Variables */
     static PTR(Env) empty;
     
     /* Destructor */

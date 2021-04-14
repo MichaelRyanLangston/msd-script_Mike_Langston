@@ -12,6 +12,7 @@
 #include "parse.hpp"
 #include "env.hpp"
 #include <sstream>
+#include <fstream>
 
 
 void use_arguments(const int arraySize, const char* array[]){
@@ -24,6 +25,7 @@ void use_arguments(const int arraySize, const char* array[]){
         std::cout << "--help => Displays this message.\n";
         std::cout << "--test => Runs all tests in the program\n";
         std::cout << "--interp => Takes the given argument, interprets it, and exits with 0 if successful.\n";
+        std::cout << "--step => Takes the given argument and interprets it, while preventing stack overflow, and exits with 0 if successful.\n";
         std::cout << "--print => Takes the given argument, prints it, and exits with 0 if successful.\n";
         std::cout << "Any additional flags are ignored.\n";
         std::cout << "Arguments that are passed and not specified above result in an \"Invalid command\" error.\n";
@@ -38,6 +40,16 @@ void use_arguments(const int arraySize, const char* array[]){
         while (true) {
             PTR(Expr) e = parse_expr(std::cin);
             std::cout << e->interp(EmptyEnv::empty)->make_string() + "\n";
+            skip_whitespace(std::cin);
+            if (std::cin.eof()) {
+                break;
+            }
+        }
+        exit(0);
+    }
+    else if ((std::string)array[1] == "--step"){
+        while (true) {
+            std::cout << Step::interp_by_steps(parse_expr(std::cin))->make_string() + "\n";
             skip_whitespace(std::cin);
             if (std::cin.eof()) {
                 break;

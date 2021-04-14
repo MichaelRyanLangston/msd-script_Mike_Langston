@@ -10,12 +10,19 @@
 
 #include <stdio.h>
 #include <string>
+#include <sstream>
 #include "pointermgmt.h"
+#include "continue.hpp"
+#include "expr.hpp"
+#include "env.hpp"
+#include "catch.h"
 
 
 //Prototypes
 class Expr;
 class Env;
+class Cont;
+class Step;
 
 CLASS(Val){
 public:
@@ -25,6 +32,7 @@ public:
     virtual PTR(Val) mult_by(PTR(Val) other_val) = 0;
     virtual bool is_true() = 0;
     virtual PTR(Val) call(PTR(Val) actual_arg) = 0;
+    virtual void call_step(PTR(Val) actual_arg_val, PTR(Cont) rest) = 0;
     virtual std::string make_string() = 0;
     
     /* Destructor */
@@ -45,6 +53,7 @@ public:
     PTR(Val) mult_by(PTR(Val) other_val);
     bool is_true();
     PTR(Val) call(PTR(Val) actual_arg);
+    void call_step(PTR(Val) actual_arg_val, PTR(Cont) rest);
     std::string make_string();
 };
 
@@ -62,6 +71,7 @@ public:
     PTR(Val) mult_by(PTR(Val) other_val);
     bool is_true();
     PTR(Val) call(PTR(Val) actual_arg);
+    void call_step(PTR(Val) actual_arg_val, PTR(Cont) rest);
     std::string make_string();
 };
 
@@ -81,6 +91,7 @@ public:
     PTR(Val) mult_by(PTR(Val) other_val);
     bool is_true();
     PTR(Val) call(PTR(Val) actual_arg);
+    void call_step(PTR(Val) actual_arg_val, PTR(Cont) rest);
     std::string make_string();
 };
 

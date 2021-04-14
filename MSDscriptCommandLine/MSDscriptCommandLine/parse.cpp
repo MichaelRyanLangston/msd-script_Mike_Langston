@@ -83,6 +83,8 @@ PTR(Expr) parse_num(std::istream &to_Parse){
         is_Negative = true;
         consume_character(to_Parse, '-');
     }
+    
+    //errorchecking for chars between negative sign and number
     if (!(isdigit(to_Parse.peek()))) {
         throw std::runtime_error("parse_num: and unexpected charater has been detected between \"-\" and the number...");
     }
@@ -91,7 +93,11 @@ PTR(Expr) parse_num(std::istream &to_Parse){
         int input_Charater = to_Parse.peek();
         if(isdigit(input_Charater)){
             consume_character(to_Parse, input_Charater);
-            to_Return = to_Return * 10 + (input_Charater - '0');
+            to_Return = (unsigned)to_Return * 10 + (input_Charater - '0');
+            
+            //This is a safety check for integer overflow in a single number (-2147483648 isn't valid)
+            if(to_Return < 0)
+                throw std::runtime_error("This number cannot be represented by the backing type 'int' becasue it causes memory overflow...");
         }
         else
             break;

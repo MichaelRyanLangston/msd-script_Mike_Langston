@@ -18,6 +18,10 @@
 		CAEC2ED725C9AB8600EF989A /* expr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CAED112C25BE67F000E9D2CC /* expr.cpp */; };
 		CAEC2EDD25C9AD7000EF989A /* run.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CAEC2EDB25C9AD7000EF989A /* run.cpp */; };
 		CAED112E25BE67F000E9D2CC /* expr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CAED112C25BE67F000E9D2CC /* expr.cpp */; };
+		CAFA4DE22623C5E2002D0DC9 /* step.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CAFA4DE02623C5E2002D0DC9 /* step.cpp */; };
+		CAFA4DE32623C5E2002D0DC9 /* step.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CAFA4DE02623C5E2002D0DC9 /* step.cpp */; };
+		CAFA4DE82623C5FA002D0DC9 /* continue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CAFA4DE62623C5FA002D0DC9 /* continue.cpp */; };
+		CAFA4DE92623C5FA002D0DC9 /* continue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CAFA4DE62623C5FA002D0DC9 /* continue.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -50,6 +54,10 @@
 		CAED112B25BE65DA00E9D2CC /* catch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = catch.h; sourceTree = "<group>"; };
 		CAED112C25BE67F000E9D2CC /* expr.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = expr.cpp; sourceTree = "<group>"; };
 		CAED112D25BE67F000E9D2CC /* expr.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = expr.hpp; sourceTree = "<group>"; };
+		CAFA4DE02623C5E2002D0DC9 /* step.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = step.cpp; sourceTree = "<group>"; };
+		CAFA4DE12623C5E2002D0DC9 /* step.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = step.hpp; sourceTree = "<group>"; };
+		CAFA4DE62623C5FA002D0DC9 /* continue.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = continue.cpp; sourceTree = "<group>"; };
+		CAFA4DE72623C5FA002D0DC9 /* continue.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = continue.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +110,10 @@
 				CA9D8A8925EDCF77001FC89F /* val.hpp */,
 				CA8FB4482612957C00484726 /* env.cpp */,
 				CA8FB4492612957C00484726 /* env.hpp */,
+				CAFA4DE02623C5E2002D0DC9 /* step.cpp */,
+				CAFA4DE12623C5E2002D0DC9 /* step.hpp */,
+				CAFA4DE62623C5FA002D0DC9 /* continue.cpp */,
+				CAFA4DE72623C5FA002D0DC9 /* continue.hpp */,
 			);
 			path = MSDscriptCommandLine;
 			sourceTree = "<group>";
@@ -208,7 +220,9 @@
 				CACD7E9425B7F7C800098D2C /* main.cpp in Sources */,
 				CAED112E25BE67F000E9D2CC /* expr.cpp in Sources */,
 				CA8FB44A2612957C00484726 /* env.cpp in Sources */,
+				CAFA4DE82623C5FA002D0DC9 /* continue.cpp in Sources */,
 				CA9D8A8A25EDCF77001FC89F /* val.cpp in Sources */,
+				CAFA4DE22623C5E2002D0DC9 /* step.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -218,6 +232,8 @@
 			files = (
 				CA11466626128DDB00FADBFE /* parse.cpp in Sources */,
 				CAEC2EDD25C9AD7000EF989A /* run.cpp in Sources */,
+				CAFA4DE92623C5FA002D0DC9 /* continue.cpp in Sources */,
+				CAFA4DE32623C5E2002D0DC9 /* step.cpp in Sources */,
 				CAEC2ED725C9AB8600EF989A /* expr.cpp in Sources */,
 				CA8FB44B2612957C00484726 /* env.cpp in Sources */,
 				CAEC2ED025C9AB2500EF989A /* coverageTesting.m in Sources */,
