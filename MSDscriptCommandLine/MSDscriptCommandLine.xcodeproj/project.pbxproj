@@ -14,6 +14,8 @@
 		CA9D8A8A25EDCF77001FC89F /* val.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CA9D8A8825EDCF77001FC89F /* val.cpp */; };
 		CA9D8A8B25EDCF77001FC89F /* val.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CA9D8A8825EDCF77001FC89F /* val.cpp */; };
 		CACD7E9425B7F7C800098D2C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CACD7E9325B7F7C800098D2C /* main.cpp */; };
+		CADEE7972627698100CA3704 /* test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CADEE7962627698100CA3704 /* test.cpp */; };
+		CADEE7982627698100CA3704 /* test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CADEE7962627698100CA3704 /* test.cpp */; };
 		CAEC2ED025C9AB2500EF989A /* coverageTesting.m in Sources */ = {isa = PBXBuildFile; fileRef = CAEC2ECF25C9AB2500EF989A /* coverageTesting.m */; };
 		CAEC2ED725C9AB8600EF989A /* expr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CAED112C25BE67F000E9D2CC /* expr.cpp */; };
 		CAEC2EDD25C9AD7000EF989A /* run.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CAEC2EDB25C9AD7000EF989A /* run.cpp */; };
@@ -46,6 +48,7 @@
 		CACD7E9025B7F7C800098D2C /* MSDscriptCommandLine */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MSDscriptCommandLine; sourceTree = BUILT_PRODUCTS_DIR; };
 		CACD7E9325B7F7C800098D2C /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		CAD3E46A260A1A3F005CCFF5 /* pointermgmt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pointermgmt.h; sourceTree = "<group>"; };
+		CADEE7962627698100CA3704 /* test.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = test.cpp; sourceTree = "<group>"; };
 		CAEC2ECD25C9AB2500EF989A /* coverageTesting.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = coverageTesting.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CAEC2ECF25C9AB2500EF989A /* coverageTesting.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = coverageTesting.m; sourceTree = "<group>"; };
 		CAEC2ED125C9AB2500EF989A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -102,6 +105,7 @@
 				CACD7E9325B7F7C800098D2C /* main.cpp */,
 				CAED112B25BE65DA00E9D2CC /* catch.h */,
 				CAD3E46A260A1A3F005CCFF5 /* pointermgmt.h */,
+				CADEE7962627698100CA3704 /* test.cpp */,
 				CA11466326128DDA00FADBFE /* parse.cpp */,
 				CA11466426128DDB00FADBFE /* parse.hpp */,
 				CAED112C25BE67F000E9D2CC /* expr.cpp */,
@@ -217,6 +221,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CA11466526128DDB00FADBFE /* parse.cpp in Sources */,
+				CADEE7972627698100CA3704 /* test.cpp in Sources */,
 				CACD7E9425B7F7C800098D2C /* main.cpp in Sources */,
 				CAED112E25BE67F000E9D2CC /* expr.cpp in Sources */,
 				CA8FB44A2612957C00484726 /* env.cpp in Sources */,
@@ -232,6 +237,7 @@
 			files = (
 				CA11466626128DDB00FADBFE /* parse.cpp in Sources */,
 				CAEC2EDD25C9AD7000EF989A /* run.cpp in Sources */,
+				CADEE7982627698100CA3704 /* test.cpp in Sources */,
 				CAFA4DE92623C5FA002D0DC9 /* continue.cpp in Sources */,
 				CAFA4DE32623C5E2002D0DC9 /* step.cpp in Sources */,
 				CAEC2ED725C9AB8600EF989A /* expr.cpp in Sources */,

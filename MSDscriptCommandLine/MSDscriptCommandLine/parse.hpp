@@ -14,7 +14,6 @@
 #include <sstream>
 #include <stdexcept>
 #include "pointermgmt.h"
-#include "catch.h"
 #include "expr.hpp"
 
 //Parsing Helper Functions

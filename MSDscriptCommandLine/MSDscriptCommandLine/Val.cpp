@@ -7,7 +7,6 @@
 
 #include "val.hpp"
 
-
 /* NumVal Implementation */
 //Default Constructor
 NumVal::NumVal(int rep){
@@ -73,33 +72,6 @@ std::string NumVal::make_string(){
     return std::to_string(rep);
 }
 
-//Testing
-TEST_CASE("NumVal Tests"){
-    
-    /* equals() */
-    CHECK((NEW(NumVal)(0))->equals(NEW(NumVal)(0)));
-    CHECK(!((NEW(NumVal)(1))->equals(NEW(NumVal)(2))));
-    CHECK(!((NEW(NumVal)(2))->equals(NEW(BoolVal)(true))));
-    
-    /* add_to() */
-    CHECK((NEW(NumVal)(4))->add_to(NEW(NumVal)(1))->equals(NEW(NumVal)(5)));
-    CHECK_THROWS_WITH((NEW(NumVal)(4))->add_to(NEW(BoolVal)(true)), "Non-NumVal object detected. Cannot perform addition.");
-    
-    /* mult_by() */
-    CHECK((NEW(NumVal)(4))->mult_by(NEW(NumVal)(1))->equals(NEW(NumVal)(4)));
-    CHECK_THROWS_WITH((NEW(NumVal)(4))->mult_by(NEW(BoolVal)(true)), "Non-NumVal object detected. Cannot perform multiplication.");
-    
-    /* is_true() */
-    CHECK_THROWS_WITH((NEW(NumVal)(4))->is_true(), "NumVal object detected. Cannot check for _true condition.");
-    
-    /* call() */
-    CHECK_THROWS_WITH((NEW(NumVal)(4))->call(NEW(NumVal)(4)), "NumVal object detected. Cannot perform a call.");
-}
-
-
-
-
-
 /* BoolVal Implentation */
 //Default Constructor
 BoolVal::BoolVal(bool rep){
@@ -140,30 +112,6 @@ std::string BoolVal::make_string(){
         return "_true";
     return "_false";
 }
-
-TEST_CASE("BoolVal Tests"){
-    /* equals() */
-    CHECK((NEW(BoolVal)(false))->equals(NEW(BoolVal)(false)));
-    CHECK(!((NEW(BoolVal)(true))->equals(NEW(BoolVal)(false))));
-    CHECK(!((NEW(BoolVal)(true))->equals(NEW(NumVal)(0))));
-    
-    /* add_to() */
-    CHECK_THROWS_WITH((NEW(BoolVal)(true))->add_to(NEW(NumVal)(false)), "BoolVal object detected. Cannot perform addition.");
-    
-    /* mult_by() */
-    CHECK_THROWS_WITH((NEW(BoolVal)(true))->mult_by(NEW(NumVal)(false)),"BoolVal object detected. Cannot perform multiplication.");
-    
-    /* is_true() */
-    CHECK((NEW(BoolVal)(true))->is_true());
-    CHECK(!((NEW(BoolVal)(false))->is_true()));
-    
-    /* call() */
-    CHECK_THROWS_WITH((NEW(BoolVal)(true))->call(NEW(BoolVal)(true)), "BoolVal object detected. Cannot perform a call.");
-}
-
-
-
-
 
 /* FunVal Implementations */
 //Default Constructor
@@ -207,25 +155,4 @@ void FunVal::call_step(PTR(Val) actual_arg_val, PTR(Cont) rest){
 
 std::string FunVal::make_string(){
     return "[function]";
-}
-
-TEST_CASE("FunVal Tests"){
-    /* equals() */
-    CHECK((NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4)), EmptyEnv::empty))->equals(NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4)), EmptyEnv::empty)));
-    CHECK(!((NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4)), EmptyEnv::empty))->equals(NEW(FunVal)("y", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4)), EmptyEnv::empty))));
-    CHECK(!((NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4)), EmptyEnv::empty))->equals(NEW(FunVal)("x", NEW(MultExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4)), EmptyEnv::empty))));
-    CHECK(!((NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4)), EmptyEnv::empty))->equals(NEW(BoolVal)(true))));
-    
-    /* add_to() */
-    CHECK_THROWS_WITH((NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4)), EmptyEnv::empty))->add_to(NEW(BoolVal)(true)), "FunVal object detected. Cannot perform addition.");
-    
-    /* mult_by() */
-    CHECK_THROWS_WITH((NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4)), EmptyEnv::empty))->mult_by(NEW(BoolVal)(true)), "FunVal object detected. Cannot perform multiplication.");
-    /* is_true() */
-    CHECK_THROWS_WITH((NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4)), EmptyEnv::empty))->is_true(), "FunVal object detected. Cannot check for _true condition.");
-    
-    /* call() */
-    CHECK((NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4)), EmptyEnv::empty))->call(NEW(NumVal)(4))->equals(NEW(NumVal)(8)));
-    CHECK_THROWS_WITH((NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4)), EmptyEnv::empty))->call(NEW(BoolVal)(true)), "BoolVal object detected. Cannot perform addition.");
-    CHECK((NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4)), EmptyEnv::empty))->call((NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4)), EmptyEnv::empty))->call(NEW(NumVal)(3)))->equals(NEW(NumVal)(11)));
 }

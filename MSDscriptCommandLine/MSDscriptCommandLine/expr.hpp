@@ -17,7 +17,6 @@
 #include "pointermgmt.h"
 #include "val.hpp"
 #include "env.hpp"
-#include "catch.h"
 #include "step.hpp"
 #include "continue.hpp"
 

@@ -39,13 +39,8 @@ the output should be 4, meaning that you meet on Thursday in week 13.
 #include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>
-#include "catch.h"
-#include "expr.hpp"
-#include "val.hpp"
-#include "env.hpp"
 #include "parse.hpp"
 #include "step.hpp"
-#include "continue.hpp"
 
 int main(int argc, char **argv) {
   if (argc != 2) {

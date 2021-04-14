@@ -9,7 +9,6 @@
 #define continue_hpp
 
 #include <stdio.h>
-#include "catch.h"
 #include "pointermgmt.h"
 #include "expr.hpp"
 #include "val.hpp"

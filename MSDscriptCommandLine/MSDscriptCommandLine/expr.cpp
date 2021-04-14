@@ -7,16 +7,7 @@
 
 #include "expr.hpp"
 
-
-//        _let factrl = _fun (factrl)
-//                        _fun (x)
-//                          _if x == 1
-//                          _then 1
-//                          _else x * factrl(factrl)(x + -1)
-//        _in  factrl(factrl)(10)
-
-
-/*Exper Interface Implemntations*/
+/*Expr Implemntation*/
 //Methods
 std::string Expr::to_string(){
     std::stringstream stringify("");
@@ -28,11 +19,6 @@ std::string Expr::to_string(){
 //void Expr::pretty_print(std::ostream& out){
 //    pretty_print_at(out, print_group_none, 0);
 //}
-
-//Method Tests
-TEST_CASE("Exper"){
-    CHECK((NEW(MultExpr)(NEW(AddExpr)(NEW(NumExpr)(0), NEW(VarExpr)("y")), NEW(NumExpr)(1)))->to_string() == "((0+y)*1)");
-}
 
 /*Num Implementation*/
 //Default Constructor
@@ -66,32 +52,6 @@ void NumExpr::print(std::ostream& out){
 //void Num::pretty_print_at(std::ostream& out, print_mode_t mode, int num){
 //    print(out);
 //}
-
-//Method Tests
-TEST_CASE("Num"){
-    /* equals() */
-    CHECK((NEW(NumExpr)(1))->equals(NEW(NumExpr)(1)));
-    CHECK(!((NEW(NumExpr)(1))->equals(NEW(NumExpr)(2))));
-    CHECK(!((NEW(NumExpr)(1))->equals(NEW(BoolExpr)(false))));
-    
-    /* interp() */
-    CHECK((NEW(NumExpr)(1))->interp(EmptyEnv::empty)->equals(NEW(NumVal)(1)));
-    
-    /* print() */
-        {
-            std::stringstream rep_cout ("");
-            (NEW(NumExpr)(1))->print(rep_cout);
-            CHECK(rep_cout.str() == "1");
-        }
-    
-    /* pretty_print() */
-//        {
-//            std::stringstream rep_cout ("");
-//            one->pretty_print(rep_cout);
-//            CHECK(rep_cout.str() == "1");
-//        }
-}
-
 
 /*Add implementations*/
 //Default Constructor
@@ -142,100 +102,6 @@ void AddExpr::print(std::ostream& out){
 //        out << ")";
 //    }
 //}
-
-//Method Tests
-TEST_CASE("Add"){
-    
-    //Test Varialbels
-        PTR(NumExpr) one = NEW(NumExpr)(1);
-        PTR(NumExpr) two = NEW(NumExpr)(2);
-        
-        PTR(AddExpr) one_two = NEW(AddExpr)(one,two);
-        PTR(AddExpr) two_one = NEW(AddExpr)(two,one);
-        PTR(AddExpr) add_two_add_exper = NEW(AddExpr)(one_two, two_one);
-        PTR(AddExpr) vars = NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(3));
-        PTR(AddExpr) vars2 = NEW(AddExpr)(NEW(NumExpr)(8), NEW(VarExpr)("y"));
-        PTR(AddExpr) vars3 = NEW(AddExpr)(one_two, NEW(AddExpr)(NEW(VarExpr)("z"), NEW(NumExpr)(7)));
-        PTR(AddExpr) vars4 = NEW(AddExpr)(NEW(AddExpr)(NEW(VarExpr)("a"), NEW(NumExpr)(3)), two_one);
-        
-        
-        PTR(MultExpr) mult_one_two = NEW(MultExpr)(one,two);
-        PTR(MultExpr) mult_two_one = NEW(MultExpr)(two,one);
-        PTR(AddExpr) add_two_mult_exper = NEW(AddExpr)(mult_one_two, mult_two_one);
-    
-    
-    //Checking Add Equality
-        CHECK(one_two->equals(NEW(AddExpr)(NEW(NumExpr)(1), NEW(NumExpr)(2))));
-    
-    //Checking Add Inequality
-        CHECK(!(one_two->equals(two_one)));
-    
-    //Checking Class Inequality;
-        CHECK(!(one_two->equals(one)));
-        CHECK(!(one_two->equals(mult_one_two)));
-    
-    /* interp() */
-        CHECK(one_two->interp(EmptyEnv::empty)->equals(NEW(NumVal)(3)));
-        CHECK(add_two_add_exper->interp(EmptyEnv::empty)->equals(NEW(NumVal)(6)));
-        CHECK(add_two_mult_exper->interp(EmptyEnv::empty)->equals(NEW(NumVal)(4)));
-    
-    //Checking print()
-        //No nesting
-            {
-                std::stringstream rep_cout ("");
-                (NEW(AddExpr)(NEW(NumExpr)(1), NEW(VarExpr)("x")))->print(rep_cout);
-                CHECK(rep_cout.str() == "(1+x)");
-            }
-        //Nested right
-            {
-                std::stringstream rep_cout("");
-                (NEW(AddExpr)(NEW(NumExpr)(3),NEW(AddExpr)(NEW(NumExpr)(1), NEW(VarExpr)("x"))))->print(rep_cout);
-                CHECK(rep_cout.str() == "(3+(1+x))");
-            }
-        //Nested left
-            {
-                std::stringstream rep_cout("");
-                (NEW(AddExpr)(NEW(AddExpr)(NEW(NumExpr)(1), NEW(VarExpr)("x")), NEW(NumExpr)(3)))->print(rep_cout);
-                CHECK(rep_cout.str() == "((1+x)+3)");
-            }
-    /*Depricated*/
-//    //Checking pretty_print()
-//        //No nesting
-//            {
-//                std::stringstream rep_cout ("");
-//                (new Add(new Num(1), new Var("x")))->pretty_print(rep_cout);
-//                CHECK(rep_cout.str() == "1 + x");
-//            }
-//        //Add w/ Nested right Add
-//            {
-//                std::stringstream rep_cout("");
-//                (new Add(new Num(3),new Add(new Num(1), new Var("x"))))->pretty_print(rep_cout);
-//                CHECK(rep_cout.str() == "3 + 1 + x");
-//            }
-//        //Add w/ Nested left Add
-//            {
-//                std::stringstream rep_cout("");
-//                (new Add(new Add(new Num(1), new Var("x")), new Num(3)))->pretty_print(rep_cout);
-//                CHECK(rep_cout.str() == "(1 + x) + 3");
-//            }
-//        //Add w/ Nested right Mult
-//            {
-//                std::stringstream rep_cout("");
-//                (new Add(new Num(3), new Mult(new Num(1), new Var("x"))))->pretty_print(rep_cout);
-//                CHECK(rep_cout.str() == "3 + 1 * x");
-//            }
-//        //Add w/ Nested left Mult
-//            {
-//                std::stringstream rep_cout("");
-//                (new Add(new Mult(new Num(1), new Var("x")), new Num(3)))->pretty_print(rep_cout);
-//                CHECK(rep_cout.str() == "1 * x + 3");
-//            }
-}
-
-
-
-
-
 
 /*Mult implementations*/
 //Default Constructor
@@ -288,101 +154,6 @@ void MultExpr::print(std::ostream& out){
 //    }
 //}
 
-//Method Tests
-TEST_CASE("Mult Test"){
-    
-    //Test Varialbels
-        PTR(NumExpr) one = NEW(NumExpr)(1);
-        PTR(NumExpr) two = NEW(NumExpr)(2);
-
-        PTR(AddExpr) one_two = NEW(AddExpr)(one,two);
-        PTR(AddExpr) two_one = NEW(AddExpr)(two,one);
-
-        PTR(MultExpr) mult_one_two = NEW(MultExpr)(one,two);
-        PTR(MultExpr) mult_two_one = NEW(MultExpr)(two,one);
-        PTR(MultExpr) mult_two_mult_exper = NEW(MultExpr)(mult_one_two, mult_two_one);
-        PTR(MultExpr) mult_two_add_exper = NEW(MultExpr)(one_two, two_one);
-        PTR(MultExpr) vars = NEW(MultExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(3));
-        PTR(MultExpr) vars2 = NEW(MultExpr)(NEW(NumExpr)(8), NEW(VarExpr)("y"));
-        PTR(MultExpr) vars3 = NEW(MultExpr)(one_two, NEW(MultExpr)(NEW(VarExpr)("z"), NEW(NumExpr)(7)));
-        PTR(MultExpr) vars4 = NEW(MultExpr)(NEW(MultExpr)(NEW(VarExpr)("a"), NEW(NumExpr)(3)), two_one);
-    
-    
-    //Checking Mult Equality
-        CHECK(mult_one_two->equals(NEW(MultExpr)(NEW(NumExpr)(1), NEW(NumExpr)(2))));
-    
-    //Checking Mult Inequality
-        CHECK(!(mult_one_two->equals(mult_two_one)));
-    
-    //Checking Class Inequality
-        CHECK(!(mult_one_two->equals(one_two)));
-        CHECK(!(mult_one_two->equals(one)));
-    
-    /* interp() */
-        CHECK(mult_one_two->interp(EmptyEnv::empty)->equals(NEW(NumVal)(2)));
-        CHECK(mult_two_add_exper->interp(EmptyEnv::empty)->equals(NEW(NumVal)(9)));
-        CHECK(mult_two_mult_exper->interp(EmptyEnv::empty)->equals(NEW(NumVal)(4)));
-        
-    //Checking print()
-        //No nesting
-            {
-                std::stringstream rep_cout ("");
-                (NEW(MultExpr)(NEW(NumExpr)(1), NEW(VarExpr)("x")))->print(rep_cout);
-                CHECK(rep_cout.str() == "(1*x)");
-            }
-        //Nested right
-            {
-                std::stringstream rep_cout("");
-                (NEW(MultExpr)(NEW(NumExpr)(3),NEW(MultExpr)(NEW(NumExpr)(1), NEW(VarExpr)("x"))))->print(rep_cout);
-                CHECK(rep_cout.str() == "(3*(1*x))");
-            }
-        //Nested left
-            {
-                std::stringstream rep_cout("");
-                (NEW(MultExpr)(NEW(MultExpr)(NEW(NumExpr)(1), NEW(VarExpr)("x")), NEW(NumExpr)(3)))->print(rep_cout);
-                CHECK(rep_cout.str() == "((1*x)*3)");
-            }
-    
-    /*Depricated*/
-//    //Checking pretty_print()
-//        //No nesting
-//            {
-//                std::stringstream rep_cout ("");
-//                (new Mult(new Num(1), new Var("x")))->pretty_print(rep_cout);
-//                CHECK(rep_cout.str() == "1 * x");
-//            }
-//        //Mult w/ Nested right Add
-//            {
-//                std::stringstream rep_cout("");
-//                (new Mult(new Num(3),new Add(new Num(1), new Var("x"))))->pretty_print(rep_cout);
-//                CHECK(rep_cout.str() == "3 * (1 + x)");
-//            }
-//        //Mult w/ Nested left Add
-//            {
-//                std::stringstream rep_cout("");
-//                (new Mult(new Add(new Num(1), new Var("x")), new Num(3)))->pretty_print(rep_cout);
-//                CHECK(rep_cout.str() == "(1 + x) * 3");
-//            }
-//        //Mult w/ Nested right Mult
-//            {
-//                std::stringstream rep_cout("");
-//                (new Mult(new Num(3), new Mult(new Num(1), new Var("x"))))->pretty_print(rep_cout);
-//                CHECK(rep_cout.str() == "3 * 1 * x");
-//            }
-//        //Mult w/ Nested left Mult
-//            {
-//                std::stringstream rep_cout("");
-//                (new Mult(new Mult(new Num(1), new Var("x")), new Num(3)))->pretty_print(rep_cout);
-//                CHECK(rep_cout.str() == "(1 * x) * 3");
-//            }
-//        //Mult w/ Nested left Mult
-//            {
-//                std::stringstream rep_cout("");
-//                (new Mult(new Mult(new Num(1), new Var("x")), new Add(new Var("y"), new Num(5))))->pretty_print(rep_cout);
-//                CHECK(rep_cout.str() == "(1 * x) * (y + 5)");
-//            }
-}
-
 /*Var implementations*/
 //Default Constructor
 VarExpr::VarExpr(std::string var){
@@ -417,53 +188,6 @@ void VarExpr::print(std::ostream& out){
 //void Var::pretty_print_at(std::ostream& out, print_mode_t mode, int num){
 //    print(out);
 //}
-
-//Method Tests
-TEST_CASE("Var"){
-
-    //Test Varialbels
-        PTR(NumExpr) one = NEW(NumExpr)(1);
-        PTR(NumExpr) two = NEW(NumExpr)(2);
-        PTR(AddExpr) one_two = NEW(AddExpr)(one,two);
-        PTR(MultExpr) mult_one_two = NEW(MultExpr)(one,two);
-        PTR(VarExpr) first = NEW(VarExpr)("first");
-        PTR(VarExpr) second = NEW(VarExpr)("second");
-
-    //Checking Var Equality
-        CHECK(first->equals(NEW(VarExpr)("first")));
-
-    //Checking Var Inequality
-        CHECK(!(first->equals(second)));
-    
-    //Checking Class Inequality
-        CHECK(!(first->equals(one)));
-        CHECK(!(first->equals(one_two)));
-        CHECK(!(first->equals(mult_one_two)));
-    
-    /* interp() */
-    CHECK_THROWS_WITH((NEW(VarExpr)("x"))->interp(EmptyEnv::empty), "free variable detected: x");
-    CHECK((NEW(VarExpr)("x"))->interp(NEW(ExtendedEnv)("x", NEW(NumVal)(4), EmptyEnv::empty))->equals(NEW(NumVal)(4)));
-    
-    //Checking print()
-        {
-            std::stringstream rep_cout ("");
-            (NEW(VarExpr)("x"))->print(rep_cout);
-            CHECK(rep_cout.str() == "x");
-        }
-    
-    /*Depricated*/
-    //Checking pretty_print()
-//        {
-//            std::stringstream rep_cout ("");
-//            (new Var("x"))->pretty_print(rep_cout);
-//            CHECK(rep_cout.str() == "x");
-//        }
-}
-
-
-
-
-
 
 /*LetExpr implementations*/
 //Default Constructor
@@ -509,63 +233,6 @@ void LetExpr::print(std::ostream& out){
 //    this->body->pretty_print_at(out, print_group_add, 0);
 //}
 
-//Method Tests
-TEST_CASE("_let"){
-    PTR(LetExpr) firstExpression = NEW(LetExpr)("x", NEW(NumExpr)(7), NEW(MultExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(7)));
-    PTR(LetExpr) secondExpression = NEW(LetExpr)("x", NEW(NumExpr)(7), NEW(LetExpr)("x", NEW(NumExpr)(8), NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(7))));
-    PTR(LetExpr) thridExpression = NEW(LetExpr)("x", NEW(NumExpr)(7), NEW(LetExpr)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(8)), NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(7))));
-    PTR(LetExpr) fourthExpression = NEW(LetExpr)("x", NEW(NumExpr)(7), NEW(LetExpr)("y", NEW(NumExpr)(8), NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(7))));
-    PTR(LetExpr) invalidExpression_body_free_var = NEW(LetExpr)("x", NEW(NumExpr)(7), NEW(LetExpr)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(8)), NEW(AddExpr)(NEW(VarExpr)("y"), NEW(NumExpr)(7))));
-    PTR(LetExpr) invalidExpression_rhs_free_var = NEW(LetExpr)("y", NEW(VarExpr)("y"), NEW(AddExpr)(NEW(NumExpr)(3), NEW(VarExpr)("y")));
-    PTR(LetExpr) noVariablePresent =NEW(LetExpr)("x", NEW(NumExpr)(7), NEW(MultExpr)(NEW(NumExpr)(5), NEW(NumExpr)(7)));
-    
-    //print variables
-    PTR(LetExpr) print_test = NEW(LetExpr)("x", NEW(NumExpr)(5), NEW(AddExpr)(NEW(LetExpr)("y", NEW(NumExpr)(3), NEW(AddExpr)(NEW(VarExpr)("y"), NEW(NumExpr)(2))), NEW(VarExpr)("x")));
-    
-    //Checking _let Equality
-    CHECK(firstExpression->equals(NEW(LetExpr)("x", NEW(NumExpr)(7), NEW(MultExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(7)))));
-
-    //Checking _let Inequality
-    CHECK(!(firstExpression->equals(NEW(LetExpr)("y", NEW(NumExpr)(7), NEW(MultExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(7))))));
-    CHECK(!(firstExpression->equals(NEW(LetExpr)("x", NEW(NumExpr)(8), NEW(MultExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(7))))));
-    CHECK(!(firstExpression->equals(NEW(LetExpr)("x", NEW(NumExpr)(7), NEW(MultExpr)(NEW(VarExpr)("y"), NEW(NumExpr)(7))))));
-    CHECK(!(firstExpression->equals(NEW(LetExpr)("x", NEW(NumExpr)(7), NEW(MultExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(8))))));
-    CHECK(!(firstExpression->equals(NEW(LetExpr)("x", NEW(NumExpr)(7), NEW(MultExpr)(NEW(NumExpr)(7), NEW(VarExpr)("x"))))));
-    
-    //Checking Class Inequality
-    CHECK(!firstExpression->equals(NEW(VarExpr)("x")));
-    CHECK(!firstExpression->equals(NEW(NumExpr)(7)));
-    CHECK(!firstExpression->equals(NEW(AddExpr)(NEW(NumExpr)(0), NEW(NumExpr)(0))));
-    CHECK(!firstExpression->equals(NEW(MultExpr)(NEW(NumExpr)(0), NEW(NumExpr)(0))));
-    
-    
-    //Checking interp()
-    CHECK(firstExpression->interp(EmptyEnv::empty)->equals(NEW(NumVal)(49)));
-    CHECK(secondExpression->interp(EmptyEnv::empty)->equals(NEW(NumVal)(15)));
-    CHECK(thridExpression->interp(EmptyEnv::empty)->equals(NEW(NumVal)(22)));
-    CHECK(fourthExpression->interp(EmptyEnv::empty)->equals(NEW(NumVal)(14)));
-    CHECK(noVariablePresent->interp(EmptyEnv::empty)->equals(NEW(NumVal)(35)));
-    CHECK_THROWS_WITH(invalidExpression_rhs_free_var->interp(EmptyEnv::empty), "free variable detected: y");
-    CHECK_THROWS_WITH(invalidExpression_body_free_var->interp(EmptyEnv::empty), "free variable detected: y");
-    
-    //Checking print()
-    CHECK(firstExpression->to_string() == "(_let x=7 _in (x*7))");
-    CHECK(print_test->to_string() == "(_let x=5 _in ((_let y=3 _in (y+2))+x))");
-    
-    /*Depricated*/
-//    //Checking pretty_print()
-//    Add* exampleTests = new Add(new Mult(new Num(5), new _let("x", new Num(5), new Var("x"))), new Num(1));
-//    {
-//        std::stringstream rep_cout ("");
-//        print_test->pretty_print(rep_cout);
-//        CHECK(rep_cout.str() == "_let x = 5\n_in  (_let y = 3\n      _in  y + 2) + x");
-//    }
-}
-
-
-
-
-
 /* BoolExpr Implementation */
 //Default Constructor
 BoolExpr::BoolExpr(bool rep){
@@ -597,33 +264,6 @@ void BoolExpr::print(std::ostream& out){
     else
         out << "_false";
 }
-
-
-TEST_CASE("BoolExpr Tests"){
-    /* equals() */
-    CHECK((NEW(BoolExpr)(false))->equals(NEW(BoolExpr)(false)));
-    CHECK(!((NEW(BoolExpr)(false))->equals(NEW(BoolExpr)(true))));
-    CHECK(!((NEW(BoolExpr)(false))->equals(NEW(NumExpr)(4))));
-    
-    /* interp() */
-    CHECK((NEW(BoolExpr)(true))->interp(EmptyEnv::empty)->equals(NEW(BoolVal)(true)));
-    
-    /* print */
-    {
-        std::stringstream rep_cout ("");
-        (NEW(BoolExpr)(true))->print(rep_cout);
-        CHECK(rep_cout.str() == "_true");
-    }
-    {
-        std::stringstream rep_cout ("");
-        (NEW(BoolExpr)(false))->print(rep_cout);
-        CHECK(rep_cout.str() == "_false");
-    }
-}
-
-
-
-
 
 /* EqExpr Implementation */
 //Default Constructor
@@ -661,32 +301,6 @@ void EqExpr::print(std::ostream& out){
     out << "==";
     this->rhs->print(out);
     out << ")";
-}
-
-TEST_CASE("EqExpr Tests"){
-    /* equals() */
-    CHECK((NEW(EqExpr)(NEW(NumExpr)(0), NEW(NumExpr)(1)))->equals(NEW(EqExpr)(NEW(NumExpr)(0), NEW(NumExpr)(1))));
-    CHECK(!((NEW(EqExpr)(NEW(NumExpr)(0), NEW(NumExpr)(0)))->equals(NEW(EqExpr)(NEW(NumExpr)(0), NEW(NumExpr)(1)))));
-    CHECK(!((NEW(EqExpr)(NEW(NumExpr)(1), NEW(NumExpr)(1)))->equals(NEW(EqExpr)(NEW(NumExpr)(0), NEW(NumExpr)(1)))));
-    CHECK(!((NEW(EqExpr)(NEW(NumExpr)(1), NEW(NumExpr)(1)))->equals(NEW(NumExpr)(0))));
-    
-    /* interp() */
-    CHECK((NEW(EqExpr)(NEW(BoolExpr)(false), NEW(BoolExpr)(false)))->interp(EmptyEnv::empty)->equals(NEW(BoolVal)(true)));
-    CHECK((NEW(EqExpr)(NEW(BoolExpr)(false), NEW(BoolExpr)(true)))->interp(EmptyEnv::empty)->equals(NEW(BoolVal)(false)));
-    CHECK((NEW(EqExpr)(NEW(NumExpr)(1), NEW(BoolExpr)(true)))->interp(EmptyEnv::empty)->equals(NEW(BoolVal)(false)));
-    CHECK((NEW(EqExpr)(NEW(BoolExpr)(false), NEW(NumExpr)(0)))->interp(EmptyEnv::empty)->equals(NEW(BoolVal)(false)));
-    
-    /* print() */
-    {
-        std::stringstream rep_cout ("");
-        (NEW(EqExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(1)))->print(rep_cout);
-        CHECK(rep_cout.str() == "(x==1)");
-    }
-    {
-        std::stringstream rep_cout ("");
-        (NEW(EqExpr)(NEW(VarExpr)("7"), NEW(BoolExpr)(false)))->print(rep_cout);
-        CHECK(rep_cout.str() == "(7==_false)");
-    }
 }
 
 /* IfExpr Implementation */
@@ -732,33 +346,7 @@ void IfExpr::print(std::ostream& out){
 }
 
 
-TEST_CASE("IfExpr Tests"){
-    /* equals() */
-    CHECK((NEW(IfExpr)(NEW(NumExpr)(0), NEW(NumExpr)(0) , NEW(NumExpr)(0)))->equals(NEW(IfExpr)(NEW(NumExpr)(0), NEW(NumExpr)(0) , NEW(NumExpr)(0))));
-    CHECK(!((NEW(IfExpr)(NEW(NumExpr)(0), NEW(NumExpr)(0) , NEW(NumExpr)(0)))->equals(NEW(NumExpr)(0))));
-    CHECK(!((NEW(IfExpr)(NEW(NumExpr)(1), NEW(NumExpr)(0) , NEW(NumExpr)(0)))->equals(NEW(IfExpr)(NEW(NumExpr)(0), NEW(NumExpr)(0) , NEW(NumExpr)(0)))));
-    CHECK(!((NEW(IfExpr)(NEW(NumExpr)(0), NEW(NumExpr)(1) , NEW(NumExpr)(0)))->equals(NEW(IfExpr)(NEW(NumExpr)(0), NEW(NumExpr)(0) , NEW(NumExpr)(0)))));
-    CHECK(!((NEW(IfExpr)(NEW(NumExpr)(0), NEW(NumExpr)(0) , NEW(NumExpr)(1)))->equals(NEW(IfExpr)(NEW(NumExpr)(0), NEW(NumExpr)(0) , NEW(NumExpr)(0)))));
-    CHECK(!((NEW(IfExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(0) , NEW(NumExpr)(0)))->equals(NEW(IfExpr)(NEW(NumExpr)(0), NEW(NumExpr)(0) , NEW(NumExpr)(0)))));
-    CHECK(!((NEW(IfExpr)(NEW(NumExpr)(0), NEW(VarExpr)("x") , NEW(NumExpr)(0)))->equals(NEW(IfExpr)(NEW(NumExpr)(0), NEW(NumExpr)(0) , NEW(NumExpr)(0)))));
-    CHECK(!((NEW(IfExpr)(NEW(NumExpr)(0), NEW(NumExpr)(0) , NEW(VarExpr)("x")))->equals(NEW(IfExpr)(NEW(NumExpr)(0), NEW(NumExpr)(0) , NEW(NumExpr)(0)))));
-    
-    /* interp() */
-    CHECK((NEW(IfExpr)(NEW(BoolExpr)(true), NEW(NumExpr)(1), NEW(NumExpr)(0)))->interp(EmptyEnv::empty)->equals(NEW(NumVal)(1)));
-    CHECK((NEW(IfExpr)(NEW(BoolExpr)(false), NEW(NumExpr)(1), NEW(NumExpr)(0)))->interp(EmptyEnv::empty)->equals(NEW(NumVal)(0)));
-    
-    /* print() */
-    {
-        std::stringstream rep_cout ("");
-        (NEW(IfExpr)(NEW(NumExpr)(2), NEW(NumExpr)(0) , NEW(VarExpr)("x")))->print(rep_cout);
-        CHECK(rep_cout.str() == "(_if 2_then 0_else x)");
-    }
-    {
-        std::stringstream rep_cout ("");
-        (NEW(IfExpr)(NEW(NumExpr)(5), NEW(NumExpr)(6) , NEW(NumExpr)(4)))->print(rep_cout);
-        CHECK(rep_cout.str() == "(_if 5_then 6_else 4)");
-    }
-}
+
 
 /* FunExpr Implementations */
 //Default Constructor
@@ -792,24 +380,6 @@ void FunExpr::print(std::ostream& out){
     out << ")";
 }
 
-TEST_CASE("FunExpr Tests"){
-    /* equals() */
-    CHECK((NEW(FunExpr)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))))->equals(NEW(FunExpr)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4)))));
-    CHECK(!((NEW(FunExpr)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))))->equals(NEW(FunExpr)("y", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))))));
-    CHECK(!((NEW(FunExpr)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))))->equals(NEW(FunExpr)("x", NEW(AddExpr)(NEW(VarExpr)("z"), NEW(NumExpr)(4))))));
-    CHECK(!((NEW(FunExpr)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))))->equals(NEW(BoolExpr)(true))));
-    
-    /* interp() */
-    CHECK((NEW(FunExpr)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))))->interp(EmptyEnv::empty)->equals(NEW(FunVal)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4)), EmptyEnv::empty)));
-    
-    /* print() */
-    {
-        std::stringstream rep_cout ("");
-        (NEW(FunExpr)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))))->print(rep_cout);
-        CHECK(rep_cout.str() == "(_fun (x) (x+4))");
-    }
-}
-
 /* CallExpr Implementations */
 //Default Constructor
 CallExpr::CallExpr(PTR(Expr) to_be_called, PTR(Expr) actual_arg){
@@ -841,27 +411,4 @@ void CallExpr::print(std::ostream& out){
     out << "(";
     this->actual_arg->print(out);
     out << ")";
-}
-
-TEST_CASE("CallExpr Tests"){
-    /* equals() */
-    CHECK((NEW(CallExpr)(NEW(VarExpr)("x"), NEW(MultExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))))->equals(NEW(CallExpr)(NEW(VarExpr)("x"), NEW(MultExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4)))));
-    CHECK(!((NEW(CallExpr)(NEW(VarExpr)("x"), NEW(MultExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))))->equals(NEW(CallExpr)(NEW(VarExpr)("y"), NEW(MultExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))))));
-    CHECK(!((NEW(CallExpr)(NEW(VarExpr)("x"), NEW(MultExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))))->equals(NEW(CallExpr)(NEW(VarExpr)("x"), NEW(MultExpr)(NEW(VarExpr)("y"), NEW(NumExpr)(4))))));
-    CHECK(!((NEW(CallExpr)(NEW(VarExpr)("x"), NEW(MultExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))))->equals(NEW(CallExpr)(NEW(BoolExpr)(true), NEW(MultExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))))));
-    CHECK(!((NEW(CallExpr)(NEW(VarExpr)("x"), NEW(MultExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))))->equals(NEW(BoolExpr)(true))));
-    
-    /* interp() */
-    CHECK((NEW(CallExpr)(NEW(FunExpr)("x", NEW(MultExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(4))), NEW(NumExpr)(4)))->interp(EmptyEnv::empty)->equals(NEW(NumVal)(16)));
-    
-    // (_fun(x) (_fun(x) x + 1)(2) + x)(5)
-    CHECK((NEW(CallExpr)(NEW(FunExpr)("x", NEW(AddExpr)(NEW(CallExpr)(NEW(FunExpr)("x", NEW(AddExpr)(NEW(VarExpr)("x"),NEW(NumExpr)(1))),NEW(NumExpr)(2)), NEW(VarExpr)("x"))), NEW(NumExpr)(5)))->interp(EmptyEnv::empty));
-    
-    /* print() */
-    {
-        std::stringstream rep_cout ("");
-        (NEW(CallExpr)(NEW(VarExpr)("f"), NEW(NumExpr)(4)))->print(rep_cout);
-        CHECK(rep_cout.str() == "f(4)");
-    }
-    
 }

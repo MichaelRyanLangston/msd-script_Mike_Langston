@@ -5,7 +5,6 @@
 //  Created by Michael Langston on 1/19/21.
 //
 
-#define CATCH_CONFIG_RUNNER
 #include "catch.h"
 #include "expr.hpp"
 #include "val.hpp"

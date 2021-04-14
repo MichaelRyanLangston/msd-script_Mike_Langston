@@ -9,7 +9,6 @@
 #define step_hpp
 
 #include <stdio.h>
-#include "catch.h"
 #include "pointermgmt.h"
 #include "parse.hpp"
 #include "expr.hpp"

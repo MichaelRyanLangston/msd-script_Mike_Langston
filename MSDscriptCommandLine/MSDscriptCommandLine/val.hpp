@@ -15,8 +15,6 @@
 #include "continue.hpp"
 #include "expr.hpp"
 #include "env.hpp"
-#include "catch.h"
-
 
 //Prototypes
 class Expr;
