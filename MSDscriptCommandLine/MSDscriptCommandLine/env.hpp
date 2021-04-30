@@ -5,6 +5,11 @@
 //  Created by Michael Langston on 3/29/21.
 //
 
+/* Defines an enviornment to be used in either --step or --interpmode.
+   The enviornment is used to pass information between either two steps or two recursive calls.
+   Aids in the speed up of the program
+ */
+
 #ifndef env_hpp
 #define env_hpp
 

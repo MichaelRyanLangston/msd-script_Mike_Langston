@@ -25,12 +25,26 @@ class Step;
 CLASS(Val){
 public:
     /* Override Methods */
+    
+    //Used to determine if two Val objects are equal
     virtual bool equals(PTR(Val) v) = 0;
+    
+    //Used to add two NumVal objects together
     virtual PTR(Val) add_to(PTR(Val) other_val) = 0;
+    
+    //Used to multiply two NumVal objects together
     virtual PTR(Val) mult_by(PTR(Val) other_val) = 0;
+    
+    //Used to evaluate if a BoolVal object represents true
     virtual bool is_true() = 0;
+    
+    //Used to call and evaluate a FunVal object in --interp mode
     virtual PTR(Val) call(PTR(Val) actual_arg) = 0;
+    
+    //Used to call and evaluate a FunVal object in --step mode
     virtual void call_step(PTR(Val) actual_arg_val, PTR(Cont) rest) = 0;
+    
+    //Used to translate a Val object into a stirng
     virtual std::string make_string() = 0;
     
     /* Destructor */

@@ -5,6 +5,7 @@
 //  Created by Michael Langston on 4/11/21.
 //
 
+/* Step is used to avoid stack overflow that could happen by to many recursive calls in the general interp mode. This is the recommend mode for recrsive programs */
 #ifndef step_hpp
 #define step_hpp
 

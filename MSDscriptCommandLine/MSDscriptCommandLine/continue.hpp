@@ -5,6 +5,8 @@
 //  Created by Michael Langston on 4/11/21.
 //
 
+/* The continue class is used in step mode to move between steps. When contiue is called the program executes the continuation and then will move to the next step in the progarm. This aids in avoiding storage on the call stack. */
+
 #ifndef continue_hpp
 #define continue_hpp
 

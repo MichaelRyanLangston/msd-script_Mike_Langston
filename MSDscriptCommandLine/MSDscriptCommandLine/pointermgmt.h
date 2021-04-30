@@ -4,6 +4,7 @@
 //
 //  Created by Michael Langston on 3/23/21.
 //
+// This file uses preprocessor Macros to clean up pointers and make the code a bit more readable
 
 #ifndef pointermgmt_h
 #define pointermgmt_h

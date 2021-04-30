@@ -21,6 +21,7 @@
 #include "continue.hpp"
 
 
+
 //Prototypes
 class Val;
 class Env;
@@ -31,15 +32,26 @@ class Cont;
 //Expr acts as a Java Interface, so it is meant to be implemented by other classes or rather sub-classes since C++ doesn't have a notion of an interface.
 CLASS(Expr) {
 public:
-    /* Override Methods */
-    // = 0 syntax means that each subclass must override it.
+    /* Override Methods:
+            = 0 syntax means that each subclass must override it.
+     */
+    
+    //evaluates if two expressions are equal
     virtual bool equals(PTR(Expr) e) = 0;
+    
+    //Determins how an expression should be interpeted in --interp mode
     virtual PTR(Val) interp(PTR(Env) env) = 0;
+    
+    //Determins how an expression should be interpeted in --step mode
     virtual void step_interp() = 0;
+    
+    //Determins how the specified expression is printed out to the console
     virtual void print(std::ostream& out) = 0;
     
     
-    //Methods
+    /* Class Methods */
+    
+    //Translates an expression to string
     std::string to_string();
     
     /* Destructor */

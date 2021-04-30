@@ -5,6 +5,7 @@
 //  Created by Michael Langston on 1/19/21.
 //
 
+#define CATCH_CONFIG_RUNNER
 #include "catch.h"
 #include "expr.hpp"
 #include "val.hpp"
@@ -13,6 +14,26 @@
 #include <sstream>
 #include <fstream>
 
+/*
+ You may pass the following items as an argument to MSDscript:
+
+             --help:
+                 Displays this message.
+
+             --test:
+                 Runs all tests located in test.cpp.
+             
+             --interp:
+                 Takes the given argument, interprets it, and exits with 0 if successful. This mode doesn't prevent stack overflow because of its recursive nature. Not recommend for recessive programs.
+
+             --step:
+                 Takes the given argument and interprets it, while preventing stack overflow, and exits with 0 if successful. Recommended for recursive programs.
+
+             --print:
+                 Takes the given argument, prints it, and exits with 0 if successful.
+
+         Arguments that are passed and not specified above result in an "Invalid command" error.
+ */
 
 void use_arguments(const int arraySize, const char* array[]){
     if(arraySize == 1){
@@ -22,11 +43,10 @@ void use_arguments(const int arraySize, const char* array[]){
     if ((std::string)array[1] == "--help"){
         std::cout << "This program takes the following commands:\n";
         std::cout << "--help => Displays this message.\n";
-        std::cout << "--test => Runs all tests in the program\n";
-        std::cout << "--interp => Takes the given argument, interprets it, and exits with 0 if successful.\n";
-        std::cout << "--step => Takes the given argument and interprets it, while preventing stack overflow, and exits with 0 if successful.\n";
+        std::cout << "--test => Runs all tests located in test.cpp.\n";
+        std::cout << "--interp => Takes the given argument, interprets it, and exits with 0 if successful. This mode doesn't prevent stack overflow because of its recursive nature. Not recommend for recessive programs.\n";
+        std::cout << "--step => Takes the given argument and interprets it, while preventing stack overflow, and exits with 0 if successful. Recommended for recursive programs.\n";
         std::cout << "--print => Takes the given argument, prints it, and exits with 0 if successful.\n";
-        std::cout << "Any additional flags are ignored.\n";
         std::cout << "Arguments that are passed and not specified above result in an \"Invalid command\" error.\n";
         exit(0);
     }

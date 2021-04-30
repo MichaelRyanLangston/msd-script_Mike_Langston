@@ -40,6 +40,7 @@ the output should be 4, meaning that you meet on Thursday in week 13.
 #include <sys/types.h>
 #include <pwd.h>
 #include "parse.hpp"
+#include "expr.hpp"
 #include "step.hpp"
 
 int main(int argc, char **argv) {
@@ -73,13 +74,10 @@ int main(int argc, char **argv) {
   }
 
   std::string expr = "_let mtg = (" + content + ") _in mtg(" + argv[1] + ")\n";
+    std::stringstream input(expr);
 
-  // FIXME: evaluate `expr` instead of just wishing we could:
-    std::stringstream load(expr);
-    std::cout << Step::interp_by_steps(parse_expr(load))->make_string() + "\n";
-//  std::cout << "Would like to compute the meeting day for week " << argv[1]
-//            << " by interpreting:\n\n"
-//            << expr << "\n";
+    //Example of a call to MSDscript parser to read in and run a program.
+    std::cout << Step::interp_by_steps(parse_expr(input))->make_string() + "\n";
   // The way that `expr` is actually interpreted will depend on the interface
   // that an MSDscript implementation gives you
 

@@ -1,24 +1,20 @@
 CXXFLAGS = --std=c++2a -O2 
-#-fsanitize=address -fsanitize=undefined -fno-sanitize-recover=undefined -Wall 
 
 FILEPATH = ./MSDscriptCommandLine/MSDscriptCommandLine/
 
 HEADERFILES = $(FILEPATH)catch.h $(FILEPATH)pointermgmt.h $(FILEPATH)parse.hpp $(FILEPATH)expr.hpp $(FILEPATH)val.hpp $(FILEPATH)env.hpp $(FILEPATH)step.hpp  $(FILEPATH)continue.hpp 
 
-OBJECTFILES = test.o parse.o expr.o val.o env.o step.o continue.o 
+LIBFILES = parse.o expr.o val.o env.o step.o continue.o 
 
-LIBNAME = libmsd.a
+LIBNAME = msdlib.a
 
-$(LIBNAME): $(OBJECTFILES)
-	ar -ruv $(LIBNAME) $(OBJECTFILES)
+$(LIBNAME): $(LIBFILES)
+	ar -ruv $(LIBNAME) $(LIBFILES)
 
 EXENAME = msdscript
 
-$(EXENAME): $(SOURCEFILES) $(OBJECTFILES)
-	$(CXX) $(CXXFLAGS) -o $(EXENAME) $(FILEPATH)main.cpp $(OBJECTFILES)
-
-test.o: $(FILEPATH)test.cpp $(HEADERFILES)
-	$(CXX) $(CXXFLAGS) -c $<
+$(EXENAME): $(SOURCEFILES) $(LIBNAME)
+	$(CXX) $(CXXFLAGS) -o $(EXENAME) $(FILEPATH)main.cpp $(FILEPATH)test.cpp $(LIBNAME)
 
 parse.o: $(FILEPATH)parse.cpp $(HEADERFILES)
 	$(CXX) $(CXXFLAGS) -c $<
@@ -53,4 +49,3 @@ $(TESTEXENAME): $(TESTSOURCEFILES) $(TESTHEADERFILES)
 .PHONY: test
 test: msdscript
 	./msdscript --test
-

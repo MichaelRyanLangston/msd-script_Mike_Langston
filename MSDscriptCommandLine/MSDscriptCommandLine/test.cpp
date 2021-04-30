@@ -4,7 +4,8 @@
 //
 //  Created by Michael Langston on 4/14/21.
 //
-#define CATCH_CONFIG_RUNNER
+// This file contains all of the tests used to test each of the functions in the program.
+
 #include <stdio.h>
 #include <sstream>
 #include "catch.h"
