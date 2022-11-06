@@ -1,5 +1,7 @@
 # msd-script_Mike_Langston
-Course work for CS 6015 for Mike Langston (u0720777).
+Course work for CS 6015 for Mike Langston (Spring 2021) (u0720777).
+
+
 Hi there!
 
   This was a semester long project where we developed a basic java script like scripting langugage to teach us about software manangement and good coding practices.
